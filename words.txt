@@ -128,128 +128,107 @@ Hot Air Balloon
 Friends
 The Office
 Breaking Bad
+Better Call Saul
 Game of Thrones
-Stranger Things
-The Simpsons
-Peaky Blinders
-Doctor Who
-Sherlock
-Only Fools and Horses
-Fawlty Towers
-Blackadder
-The Crown
-Downton Abbey
-Line of Duty
-Top Gear
-Gavin and Stacey
-Love Island
-The Great British Bake Off
-Strictly Come Dancing
-EastEnders
-Coronation Street
-Emmerdale
-Hollyoaks
-Mr Bean
-Only Connect
-Countdown
-Who Wants to Be a Millionaire
-Pointless
-The Chase
-Dragons' Den
-The Apprentice
-I'm a Celebrity
-Big Brother
-The X Factor
-Britain's Got Talent
-Grey's Anatomy
+House of the Dragon
 The Walking Dead
 Invincible
-Lost
-Prison Break
-The Sopranos
-The Wire
-Mad Men
-Succession
-Ted Lasso
-The Mandalorian
-The Last of Us
-House of the Dragon
+Stranger Things
 Squid Game
 Money Heist
 Wednesday
 Bridgerton
 The Boys
 Black Mirror
-Fleabag
-Derry Girls
-The Inbetweeners
-Skins
-Misfits
-Red Dwarf
-Father Ted
-The IT Crowd
-Peep Show
-Brooklyn Nine-Nine
-Parks and Recreation
-How I Met Your Mother
-The Big Bang Theory
-Two and a Half Men
-Modern Family
-Seinfeld
-Frasier
-Cheers
-Scrubs
-House
-Dexter
+Peaky Blinders
+Euphoria
+Sex Education
+You
+Outer Banks
+Cobra Kai
+Emily in Paris
+13 Reasons Why
+Riverdale
+The Vampire Diaries
+Gossip Girl
+Glee
+Supernatural
 Suits
 Shameless
-Vikings
 The Witcher
-Westworld
-Better Call Saul
-Ozark
 Narcos
-Mindhunter
-Luther
-Broadchurch
-Happy Valley
-Bodyguard
-Killing Eve
-Sex Education
-Normal People
-The Bear
-Severance
-Yellowstone
-SpongeBob SquarePants
+Ozark
+Grey's Anatomy
+The Mandalorian
+Loki
+The Last of Us
+Sherlock
+Doctor Who
+Brooklyn Nine-Nine
+How I Met Your Mother
+The Big Bang Theory
+Modern Family
+The Inbetweeners
+Gavin and Stacey
+Derry Girls
+Friday Night Dinner
+Mr Bean
+The Simpsons
 Family Guy
 South Park
 Rick and Morty
-Futurama
+SpongeBob SquarePants
+Adventure Time
+The Amazing World of Gumball
+Phineas and Ferb
+Ben 10
+Avatar: The Last Airbender
+Scooby-Doo
+Tom and Jerry
+Pokemon
+One Piece
+Naruto
+Dragon Ball Z
+Attack on Titan
+Demon Slayer
 Bluey
 Peppa Pig
 Teletubbies
 Thomas the Tank Engine
-Pokemon
-Scooby-Doo
-Tom and Jerry
-Match of the Day
-Blue Peter
+Tracy Beaker
+Horrible Histories
+Horrid Henry
+iCarly
+Hannah Montana
+Wizards of Waverly Place
+Love Island
+Made in Chelsea
+TOWIE
+Geordie Shore
+Gogglebox
+The Traitors
+The Great British Bake Off
+MasterChef
+Strictly Come Dancing
+The X Factor
+Britain's Got Talent
+I'm a Celebrity
+Big Brother
+The Apprentice
+Dragons' Den
+The Chase
+Deal or No Deal
 Gladiators
 Taskmaster
-Would I Lie to You
-Mock the Week
-QI
-Have I Got News for You
-Friday Night Dinner
-Motherland
-Ghosts
-Stath Lets Flats
-Doctor Foster
-Only Murders in the Building
+Top Gear
+Match of the Day
+EastEnders
+Coronation Street
+Emmerdale
+Hollyoaks
 
 [Movies]
 Titanic
-Jaws
 Star Wars
 The Lion King
 Toy Story
@@ -258,76 +237,89 @@ Frozen
 Shrek
 Harry Potter
 The Lord of the Rings
+Pirates of the Caribbean
 Jurassic Park
 The Matrix
 Inception
 Interstellar
 The Dark Knight
+The Batman
+Joker
 Avatar
 Avengers Endgame
 Iron Man
 Spider-Man
+Spider-Man: Into the Spider-Verse
 Black Panther
+Guardians of the Galaxy
+Thor
+Captain America
+Doctor Strange
+Deadpool
+Venom
 Back to the Future
 Ghostbusters
-E.T.
 Home Alone
-The Godfather
-Pulp Fiction
+Elf
+The Grinch
+Love Actually
 Forrest Gump
 The Shawshank Redemption
 Gladiator
-Braveheart
-Rocky
-Top Gun
+Top Gun: Maverick
 Mission Impossible
 James Bond
-Die Hard
-Terminator
-Alien
-Predator
-The Shining
+The Fast and the Furious
+Transformers
+The Hunger Games
+Twilight
+The Maze Runner
+Dune
+Oppenheimer
+Barbie
+The Wolf of Wall Street
+Knives Out
+Kingsman
 It
 Scream
-Halloween
+The Conjuring
+Get Out
+A Quiet Place
+Five Nights at Freddy's
 Grease
 Mamma Mia
 The Greatest Showman
 La La Land
-Barbie
-Oppenheimer
+High School Musical
+Pitch Perfect
+Wicked
 Mean Girls
-Clueless
 Legally Blonde
-Pretty Woman
-Notting Hill
-Love Actually
-Bridget Jones's Diary
-Four Weddings and a Funeral
-Paddington
-Mary Poppins
-The Wizard of Oz
-The Sound of Music
-Charlie and the Chocolate Factory
-Matilda
 The Parent Trap
 Mrs Doubtfire
+Matilda
+Charlie and the Chocolate Factory
+Wonka
+Paddington
+Mary Poppins
 Jumanji
 Night at the Museum
-Pirates of the Caribbean
-Indiana Jones
-The Hunger Games
-Twilight
-The Fast and the Furious
-Transformers
-Despicable Me
-Minions
+Grown Ups
+The Inbetweeners Movie
 Up
 Monsters Inc
 Cars
 Inside Out
 Coco
+Ratatouille
+WALL-E
+The Incredibles
+Brave
 Moana
+Encanto
+Tangled
+Zootropolis
+Big Hero 6
 Aladdin
 Beauty and the Beast
 The Little Mermaid
@@ -335,36 +327,22 @@ Cinderella
 Snow White
 The Jungle Book
 101 Dalmatians
+Despicable Me
+Minions
 Kung Fu Panda
 Madagascar
 Ice Age
+How to Train Your Dragon
+Hotel Transylvania
+Cloudy with a Chance of Meatballs
+Megamind
+Bee Movie
+Puss in Boots
+Sing
+The Lego Movie
+The Super Mario Bros. Movie
+A Minecraft Movie
+Sonic the Hedgehog
+Coraline
 Wallace and Gromit
 Chicken Run
-Hot Fuzz
-Shaun of the Dead
-Trainspotting
-Lock Stock and Two Smoking Barrels
-Snatch
-Kingsman
-The Italian Job
-Billy Elliot
-Slumdog Millionaire
-Bohemian Rhapsody
-Rocketman
-The Wolf of Wall Street
-The Revenant
-Joker
-Deadpool
-Dune
-Gravity
-The Martian
-Everything Everywhere All at Once
-Free Willy
-Babe
-The Truman Show
-Groundhog Day
-Dirty Dancing
-Footloose
-Elf
-The Grinch
-The Polar Express
