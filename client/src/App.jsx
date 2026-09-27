@@ -381,9 +381,7 @@ function RoundView({ round, isHost, run, announcingSkip }) {
           <div className="card-cover">
             <div className="cover-icon" aria-hidden="true">👁️</div>
             <div className="cover-title">Tap to reveal</div>
-            <div className="muted small-text">
-              {round.skipped ? 'Word skipped — here’s a new one' : "Make sure nobody's peeking"}
-            </div>
+            <div className="muted small-text">Make sure nobody's peeking</div>
           </div>
         )}
       </div>
