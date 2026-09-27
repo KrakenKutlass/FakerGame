@@ -148,6 +148,18 @@ io.on('connection', (socket) => {
     ack?.({ ok: true });
   });
 
+  // Anyone in the round can vote to skip the word; a majority deals a new word, same impostor.
+  socket.on('voteSkip', (_payload, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    try {
+      game.voteSkip(room, playerId);
+    } catch (err) {
+      return fail(ack, err.message);
+    }
+    broadcast(room);
+    ack?.({ ok: true });
+  });
+
   // Host's "End game": everyone back to the lobby.
   socket.on('endGame', (_payload, ack) => {
     if (!current()) return fail(ack, 'Not in a room');

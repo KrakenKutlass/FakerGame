@@ -16,6 +16,8 @@ Take turns saying something about the word and try to spot the faker.
 4. Tap your card to reveal it (and tap again to hide it).
 5. When the impostor is caught, the impostor taps **They got me**. That deals a new round straight away, with
    a new word and a new random impostor. The same person can be the impostor twice in a row.
+   If the word's a dud, anyone can tap **Skip word**. Once more than half the players have voted, everyone
+   gets a new word from the same category and the impostor stays the same.
 6. The host can tap **End game** at any time to send everyone back to the lobby. From there they can pick a
    different category and start again, or tap **Close room** to shut the room and send everyone home.
 

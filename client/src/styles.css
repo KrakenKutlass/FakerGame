@@ -528,3 +528,24 @@ h2 {
 .toast.info {
   background: var(--accent);
 }
+
+/* Vote to skip the word */
+.skip-btn {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+.skip-btn.voted {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.skip-count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-size: 0.8rem;
+}

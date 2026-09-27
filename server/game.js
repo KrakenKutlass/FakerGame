@@ -94,6 +94,8 @@ export class Game {
     }
     // A round can't carry on without enough players, so send everyone back to the lobby.
     if (room.round && room.players.size < MIN_PLAYERS) room.round = null;
+    // Fewer voters can mean the votes already cast are now a majority.
+    if (room.round) this.maybeSkip(room);
   }
 
   /** Host's "End game": everyone goes back to the lobby. */
@@ -132,8 +134,11 @@ export class Game {
     return entry;
   }
 
-  /** Starts a fresh round with a new word and a new random impostor. */
-  startRound(room) {
+  /**
+   * Starts a fresh round with a new word. The impostor is random unless `impostorId` is given
+   * (used by vote-skip, which swaps the word but keeps the same impostor).
+   */
+  startRound(room, { impostorId = null, skipped = false } = {}) {
     const participants = [...room.players.keys()];
     if (participants.length < MIN_PLAYERS) {
       throw new Error(`Need at least ${MIN_PLAYERS} players to start`);
@@ -143,10 +148,41 @@ export class Game {
       number: (room.round?.number ?? 0) + 1,
       word,
       category,
-      impostorId: participants[randomInt(participants.length)],
+      impostorId: room.players.has(impostorId) ? impostorId : participants[randomInt(participants.length)],
       participants: new Set(participants),
+      skipVotes: new Set(),
+      skipped,
     };
     return room.round;
+  }
+
+  /** Players who can vote to skip: dealt into this round and still in the room. */
+  skipVoters(room) {
+    return [...room.round.participants].filter((id) => room.players.has(id));
+  }
+
+  /** Strict majority of the players in the round. */
+  skipNeeded(room) {
+    return Math.floor(this.skipVoters(room).length / 2) + 1;
+  }
+
+  /** Toggle a player's skip vote. Returns true if that vote tipped it into a new word. */
+  voteSkip(room, playerId) {
+    const { round } = room;
+    if (!round || !round.participants.has(playerId)) throw new Error('Only players in this round can vote');
+    if (round.skipVotes.has(playerId)) round.skipVotes.delete(playerId);
+    else round.skipVotes.add(playerId);
+    return this.maybeSkip(room);
+  }
+
+  /** Once a majority wants to skip: new word, same impostor. */
+  maybeSkip(room) {
+    const { round } = room;
+    if (!round) return false;
+    const votes = this.skipVoters(room).filter((id) => round.skipVotes.has(id)).length;
+    if (votes < this.skipNeeded(room)) return false;
+    this.startRound(room, { impostorId: round.impostorId, skipped: true });
+    return true;
   }
 
   /**
@@ -166,7 +202,18 @@ export class Game {
     const { round } = room;
     let myRound = null;
     if (round) {
-      const base = { number: round.number, category: round.category };
+      const inRound = round.participants.has(playerId);
+      const base = {
+        number: round.number,
+        category: round.category,
+        skipped: round.skipped,
+        skip: {
+          votes: this.skipVoters(room).filter((id) => round.skipVotes.has(id)).length,
+          needed: this.skipNeeded(room),
+          voted: round.skipVotes.has(playerId),
+          canVote: inRound,
+        },
+      };
       if (round.impostorId === playerId) {
         myRound = { ...base, role: 'impostor' };
       } else if (round.participants.has(playerId)) {

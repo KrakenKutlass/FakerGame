@@ -160,3 +160,44 @@ test('new rooms default to Random; the pick survives End game until the room clo
   const fresh = game.createRoom('p0', 'Host');
   assert.equal(fresh.category, null);
 });
+
+test('majority skip vote deals a new word with the same impostor', () => {
+  const { game, room } = roomWith(4);
+  const first = game.startRound(room);
+  assert.equal(game.skipNeeded(room), 3);
+  assert.equal(game.voteSkip(room, 'p0'), false);
+  assert.equal(game.voteSkip(room, 'p0'), false); // toggled off
+  assert.equal(game.viewFor(room, 'p0').round.skip.votes, 0);
+  game.voteSkip(room, 'p0');
+  game.voteSkip(room, 'p1');
+  assert.equal(game.viewFor(room, 'p2').round.skip.votes, 2);
+  assert.equal(game.voteSkip(room, 'p2'), true);
+  const next = room.round;
+  assert.equal(next.number, first.number + 1);
+  assert.equal(next.impostorId, first.impostorId);
+  assert.notEqual(next.word, first.word);
+  assert.equal(next.skipped, true);
+  assert.equal(game.viewFor(room, 'p0').round.skip.votes, 0);
+});
+
+test('two players both need to vote; late joiners cannot vote', () => {
+  const { game, room } = roomWith(2);
+  game.startRound(room);
+  game.addPlayer(room, 'late', 'Late');
+  assert.throws(() => game.voteSkip(room, 'late'));
+  assert.equal(game.viewFor(room, 'late').round.skip.canVote, false);
+  assert.equal(game.voteSkip(room, 'p0'), false);
+  assert.equal(game.voteSkip(room, 'p1'), true);
+  assert.equal(room.round.participants.has('late'), true); // dealt in on the new word
+});
+
+test('a player leaving can tip existing votes into a majority', () => {
+  const { game, room } = roomWith(4);
+  const first = game.startRound(room);
+  game.voteSkip(room, 'p0');
+  game.voteSkip(room, 'p1');
+  const leaver = ['p2', 'p3'].find((id) => id !== first.impostorId);
+  game.removePlayer(room, leaver); // 3 voters now, 2 votes is a majority
+  assert.equal(room.round.number, first.number + 1);
+  assert.equal(room.round.impostorId, first.impostorId);
+});
