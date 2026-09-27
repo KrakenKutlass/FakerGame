@@ -148,3 +148,15 @@ test('must-have titles stay in the word list', () => {
   for (const w of ['The Walking Dead', 'Invincible', 'Game of Thrones', 'Breaking Bad']) assert.ok(has(w, 'TV Shows'), w);
   assert.ok(has('Pirates of the Caribbean', 'Movies'));
 });
+
+test('new rooms default to Random; the pick survives End game until the room closes', () => {
+  const { game, room } = roomWith(2);
+  assert.equal(game.viewFor(room, 'p0').category, null); // null = Random
+  game.setCategory(room, 'Objects');
+  game.startRound(room);
+  game.endRound(room);
+  assert.equal(game.viewFor(room, 'p1').category, 'Objects');
+  game.closeRoom(room);
+  const fresh = game.createRoom('p0', 'Host');
+  assert.equal(fresh.category, null);
+});
