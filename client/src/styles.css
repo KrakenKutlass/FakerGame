@@ -524,6 +524,7 @@ h2 {
 .text {
   color: var(--text);
 }
-.round .category-picker {
-  margin-top: 10px;
+/* Neutral (non-error) toast, e.g. "The host closed the room". */
+.toast.info {
+  background: var(--accent);
 }

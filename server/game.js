@@ -84,7 +84,7 @@ export class Game {
   removePlayer(room, playerId) {
     room.players.delete(playerId);
     if (room.players.size === 0) {
-      this.rooms.delete(room.code);
+      this.closeRoom(room);
       return;
     }
     if (room.hostId === playerId) {
@@ -94,6 +94,17 @@ export class Game {
     }
     // A round can't carry on without enough players, so send everyone back to the lobby.
     if (room.round && room.players.size < MIN_PLAYERS) room.round = null;
+  }
+
+  /** Host's "End game": everyone goes back to the lobby. */
+  endRound(room) {
+    room.round = null;
+  }
+
+  /** Deletes the room. Only removes it from the map if the code still points at this room. */
+  closeRoom(room) {
+    room.closed = true;
+    if (this.rooms.get(room.code) === room) this.rooms.delete(room.code);
   }
 
   /** Category names in the order they appear in the words file. */

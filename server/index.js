@@ -71,7 +71,17 @@ io.on('connection', (socket) => {
 
   const fail = (ack, message) => typeof ack === 'function' && ack({ error: message });
 
+  // Drop our reference if the host closed the room out from under this connection.
+  function current() {
+    if (room?.closed) {
+      room = null;
+      playerId = null;
+    }
+    return room;
+  }
+
   function attach(targetRoom, id) {
+    current();
     // Moving to a different room counts as leaving the old one.
     if (room && (room !== targetRoom || playerId !== id)) detach(room !== targetRoom);
     room = targetRoom;
@@ -83,7 +93,7 @@ io.on('connection', (socket) => {
   }
 
   function detach(leaving) {
-    if (!room) return;
+    if (!current()) return;
     const r = room;
     const id = playerId;
     socket.leave(`player:${r.code}:${id}`);
@@ -122,14 +132,13 @@ io.on('connection', (socket) => {
     ack?.({ code: target.code });
   });
 
-  // Host starts the first round, the impostor's "They got me", and the host's "End game"
-  // all do the same thing: deal a fresh word and impostor (or go back to the lobby if
-  // too many people have left to play another round).
+  // Host's "Start game" from the lobby, or the impostor's "They got me" mid-round: deal a
+  // fresh word and impostor (or go back to the lobby if too many people have left).
   socket.on('newRound', (_payload, ack) => {
-    if (!room) return fail(ack, 'Not in a room');
-    const isHost = room.hostId === playerId;
+    if (!current()) return fail(ack, 'Not in a room');
+    const hostStarting = room.hostId === playerId && !room.round;
     const isImpostor = room.round?.impostorId === playerId;
-    if (!isHost && !isImpostor) return fail(ack, 'Only the host or the impostor can do that');
+    if (!hostStarting && !isImpostor) return fail(ack, 'Only the impostor can do that');
     try {
       game.nextRound(room);
     } catch (err) {
@@ -139,10 +148,36 @@ io.on('connection', (socket) => {
     ack?.({ ok: true });
   });
 
-  // Host picks the category for upcoming rounds (null = random). Takes effect next deal.
+  // Host's "End game": everyone back to the lobby.
+  socket.on('endGame', (_payload, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can end the game');
+    game.endRound(room);
+    broadcast(room);
+    ack?.({ ok: true });
+  });
+
+  // Host's "Close room": everyone is sent back to the home screen and the code stops working.
+  socket.on('closeRoom', (_payload, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can close the room');
+    const closing = room;
+    for (const id of closing.players.keys()) {
+      const channel = `player:${closing.code}:${id}`;
+      io.to(channel).emit('closed');
+      io.in(channel).socketsLeave(channel);
+      cancelRemoval(closing, id);
+    }
+    game.closeRoom(closing);
+    current();
+    ack?.({ ok: true });
+  });
+
+  // Host picks the category in the lobby (null = random). Locked while a game is running.
   socket.on('setCategory', ({ category } = {}, ack) => {
-    if (!room) return fail(ack, 'Not in a room');
+    if (!current()) return fail(ack, 'Not in a room');
     if (room.hostId !== playerId) return fail(ack, 'Only the host can pick the category');
+    if (room.round) return fail(ack, 'End the game to change the category');
     game.setCategory(room, category ?? null);
     broadcast(room);
     ack?.({ ok: true });

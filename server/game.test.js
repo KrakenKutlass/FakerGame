@@ -121,3 +121,30 @@ test('unknown category falls back to random', () => {
   game.setCategory(room, null);
   assert.equal(room.category, null);
 });
+
+test('host ending the game returns everyone to the lobby', () => {
+  const { game, room } = roomWith(3);
+  game.startRound(room);
+  game.endRound(room);
+  assert.equal(room.round, null);
+  for (const id of room.players.keys()) assert.equal(game.viewFor(room, id).round, null);
+  assert.equal(game.startRound(room).number, 1);
+});
+
+test('closing a room removes it, without touching a newer room that reuses the code', () => {
+  const { game, room } = roomWith(2);
+  game.closeRoom(room);
+  assert.equal(game.getRoom(room.code), undefined);
+  const newer = { code: room.code };
+  game.rooms.set(room.code, newer);
+  game.removePlayer(room, 'p0');
+  game.removePlayer(room, 'p1'); // last player of the closed room leaving
+  assert.equal(game.getRoom(room.code), newer);
+});
+
+test('must-have titles stay in the word list', () => {
+  const parsed = parseWords(readFileSync(new URL('../words.txt', import.meta.url), 'utf8'));
+  const has = (word, category) => parsed.some((e) => e.word === word && e.category === category);
+  for (const w of ['The Walking Dead', 'Invincible', 'Game of Thrones', 'Breaking Bad']) assert.ok(has(w, 'TV Shows'), w);
+  assert.ok(has('Pirates of the Caribbean', 'Movies'));
+});

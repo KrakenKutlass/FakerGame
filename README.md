@@ -12,11 +12,12 @@ Take turns saying something about the word and try to spot the faker.
 2. Everyone else scans the QR code (tap the QR button next to the room code) and just enters their name, or
    types the 4-letter room code on the home page.
 3. The host picks a category (Objects, TV Shows, Movies, or Random for any) and, with at least 2 players,
-   taps **Start game**. The host can change the category during a game too; it applies from the next round.
+   taps **Start game**. The category stays the same for the whole game.
 4. Tap your card to reveal it (and tap again to hide it).
-5. When the impostor is caught, the impostor taps **They got me**. The host can also tap **End game** at any
-   time. Both deal a new round straight away, with a new word and a new random impostor. The same person can
-   be the impostor twice in a row.
+5. When the impostor is caught, the impostor taps **They got me**. That deals a new round straight away, with
+   a new word and a new random impostor. The same person can be the impostor twice in a row.
+6. The host can tap **End game** at any time to send everyone back to the lobby. From there they can pick a
+   different category and start again, or tap **Close room** to shut the room and send everyone home.
 
 People who join mid-round are shown the word (never the impostor) and are dealt in from the next round.
 Refreshing the page or locking your phone doesn't lose your place. You rejoin automatically, and players are

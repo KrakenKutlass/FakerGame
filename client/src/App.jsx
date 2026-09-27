@@ -40,8 +40,9 @@ function getPlayerId() {
 
 const playerId = getPlayerId();
 
-// Room code from an invite link / QR code (e.g. /?room=ABCD).
-const inviteCode = (new URLSearchParams(window.location.search).get('room') || '')
+// Room code from an invite link / QR code (e.g. /?room=ABCD). Cleared once used, so leaving
+// or a closed room doesn't land you back on that invite.
+let inviteCode = (new URLSearchParams(window.location.search).get('room') || '')
   .toUpperCase()
   .replace(/[^A-Z]/g, '')
   .slice(0, 4);
@@ -58,6 +59,7 @@ export default function App() {
   const [connected, setConnected] = useState(false);
   const [state, setState] = useState(null);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [name, setName] = useState(() => storage.get('faker.name'));
 
   useEffect(() => {
@@ -79,25 +81,36 @@ export default function App() {
       setState(next);
       storage.set('faker.room', next.code);
       // Drop ?room= once we're in, so a later refresh doesn't pull us back to an old invite.
+      inviteCode = '';
       if (window.location.search) window.history.replaceState(null, '', window.location.pathname);
+    };
+    const onClosed = () => {
+      storage.set('faker.room', '');
+      setState(null);
+      setInfo('The host closed the room');
     };
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('state', onState);
+    socket.on('closed', onClosed);
     socket.connect();
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('state', onState);
+      socket.off('closed', onClosed);
       socket.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (!error) return;
-    const t = setTimeout(() => setError(''), 4000);
+    if (!error && !info) return;
+    const t = setTimeout(() => {
+      setError('');
+      setInfo('');
+    }, 4000);
     return () => clearTimeout(t);
-  }, [error]);
+  }, [error, info]);
 
   const run = useCallback(async (event, payload) => {
     const res = await emit(event, payload);
@@ -131,9 +144,16 @@ export default function App() {
           onJoin={(code) => run('join', { playerId, name, code })}
         />
       )}
-      {error && (
-        <div className="toast" role="alert" onClick={() => setError('')}>
-          {error}
+      {(error || info) && (
+        <div
+          className={`toast ${error ? '' : 'info'}`}
+          role={error ? 'alert' : 'status'}
+          onClick={() => {
+            setError('');
+            setInfo('');
+          }}
+        >
+          {error || info}
         </div>
       )}
     </div>
@@ -262,7 +282,7 @@ function Room({ state, run, onLeave }) {
       </header>
 
       {round ? (
-        <RoundView key={round.number} state={state} round={round} isHost={isHost} run={run} />
+        <RoundView key={round.number} round={round} isHost={isHost} run={run} />
       ) : (
         <Lobby state={state} isHost={isHost} run={run} />
       )}
@@ -294,6 +314,9 @@ function Lobby({ state, isHost, run }) {
               Need at least {state.minPlayers} players ({count} so far)
             </p>
           )}
+          <ConfirmButton className="btn danger" confirmText="Tap again to close the room for everyone" onConfirm={() => run('closeRoom')}>
+            Close room
+          </ConfirmButton>
         </>
       ) : (
         <>
@@ -307,7 +330,7 @@ function Lobby({ state, isHost, run }) {
   );
 }
 
-function RoundView({ state, round, isHost, run }) {
+function RoundView({ round, isHost, run }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
@@ -342,12 +365,9 @@ function RoundView({ state, round, isHost, run }) {
       <p className="muted center small-text">{revealed ? 'Tap the card to hide it' : ' '}</p>
 
       {isHost && (
-        <>
-          <ConfirmButton className="btn danger" confirmText="Tap again to end this round" onConfirm={() => run('newRound')}>
-            End game
-          </ConfirmButton>
-          <CategoryPicker state={state} run={run} label="Next round's category" />
-        </>
+        <ConfirmButton className="btn danger" confirmText="Tap again to end the game" onConfirm={() => run('endGame')}>
+          End game
+        </ConfirmButton>
       )}
     </section>
   );
@@ -380,7 +400,7 @@ function CardFace({ round, run }) {
   );
 }
 
-/** Host-only choice of category for upcoming rounds; "Random" draws from every category. */
+/** Host-only category choice in the lobby; "Random" draws from every category. */
 function CategoryPicker({ state, run, label }) {
   const options = [{ value: null, name: 'Random' }, ...state.categories.map((c) => ({ value: c, name: c }))];
   return (
