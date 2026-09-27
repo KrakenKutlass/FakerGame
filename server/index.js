@@ -118,14 +118,15 @@ io.on('connection', (socket) => {
   });
 
   // Host starts the first round, the impostor's "They got me", and the host's "End game"
-  // all do the same thing: deal a fresh word and impostor.
+  // all do the same thing: deal a fresh word and impostor (or go back to the lobby if
+  // too many people have left to play another round).
   socket.on('newRound', (_payload, ack) => {
     if (!room) return fail(ack, 'Not in a room');
     const isHost = room.hostId === playerId;
     const isImpostor = room.round?.impostorId === playerId;
     if (!isHost && !isImpostor) return fail(ack, 'Only the host or the impostor can do that');
     try {
-      game.startRound(room);
+      game.nextRound(room);
     } catch (err) {
       return fail(ack, err.message);
     }

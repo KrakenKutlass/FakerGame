@@ -77,3 +77,21 @@ test('words do not repeat until the list is used up', () => {
   assert.notEqual(a, b);
   game.startRound(room); // list exhausted -> resets rather than failing
 });
+
+test('ending a round with too few players returns to the lobby instead of failing', () => {
+  const { game, room } = roomWith(2);
+  game.startRound(room);
+  room.players.delete('p0'); // simulate a leave without the auto-lobby in removePlayer
+  assert.equal(game.nextRound(room), null);
+  assert.equal(room.round, null);
+  assert.throws(() => game.nextRound(room)); // starting from the lobby still needs 2
+});
+
+test('a round drops back to the lobby when players leave below the minimum', () => {
+  const { game, room } = roomWith(2);
+  game.startRound(room);
+  game.removePlayer(room, 'p0');
+  assert.equal(room.hostId, 'p1');
+  assert.equal(room.round, null);
+  assert.equal(game.viewFor(room, 'p1').round, null);
+});

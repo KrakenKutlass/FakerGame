@@ -91,6 +91,8 @@ export class Game {
       const next = [...room.players.values()].sort((a, b) => a.joinedAt - b.joinedAt)[0];
       room.hostId = next.id;
     }
+    // A round can't carry on without enough players, so send everyone back to the lobby.
+    if (room.round && room.players.size < MIN_PLAYERS) room.round = null;
   }
 
   pickWord(room) {
@@ -120,6 +122,18 @@ export class Game {
       participants: new Set(participants),
     };
     return room.round;
+  }
+
+  /**
+   * "They got me" / "End game": deal the next round, or return to the lobby if there
+   * are no longer enough players for one. Returns the new round, or null for the lobby.
+   */
+  nextRound(room) {
+    if (room.round && room.players.size < MIN_PLAYERS) {
+      room.round = null;
+      return null;
+    }
+    return this.startRound(room);
   }
 
   /** The view of the room that one specific player is allowed to see. */
