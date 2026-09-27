@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
-export const MIN_PLAYERS = 3;
+export const MIN_PLAYERS = 2;
 export const MAX_NAME_LENGTH = 20;
 // Letters only, without I/O/L so codes are easy to read aloud across a table.
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ';

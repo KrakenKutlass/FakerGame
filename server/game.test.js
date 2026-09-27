@@ -30,9 +30,10 @@ test('bundled words.txt has three categories and no duplicates', () => {
   assert.ok(parsed.length >= 300);
 });
 
-test('needs three players to start', () => {
+test('needs two players to start', () => {
+  assert.throws(() => roomWith(1).game.startRound(roomWith(1).room));
   const { game, room } = roomWith(2);
-  assert.throws(() => game.startRound(room));
+  assert.equal(game.startRound(room).participants.size, 2);
 });
 
 test('exactly one impostor, who sees only the category', () => {

@@ -10,7 +10,7 @@ Take turns saying something about the word and try to spot the faker.
 
 1. One person enters their name and taps **Create a new room**. They become the host.
 2. Everyone else enters their name and the 4-letter room code, then taps **Join room**.
-3. With at least 3 players, the host taps **Start game**.
+3. With at least 2 players, the host taps **Start game**.
 4. Tap your card to reveal it (and tap again to hide it).
 5. When the impostor is caught, the impostor taps **They got me**. The host can also tap **End game** at any
    time. Both deal a new round straight away, with a new word and a new random impostor. The same person can
