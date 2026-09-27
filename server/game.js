@@ -59,6 +59,7 @@ export class Game {
       players: new Map(),
       round: null,
       usedWords: new Set(),
+      category: null, // null = random across all categories
     };
     this.rooms.set(code, room);
     this.addPlayer(room, playerId, name);
@@ -95,12 +96,25 @@ export class Game {
     if (room.round && room.players.size < MIN_PLAYERS) room.round = null;
   }
 
+  /** Category names in the order they appear in the words file. */
+  categories() {
+    return [...new Set(this.getWords().map((e) => e.category))];
+  }
+
+  /** Host's pick for upcoming rounds; null (or anything unknown) means random. */
+  setCategory(room, category) {
+    room.category = this.categories().includes(category) ? category : null;
+  }
+
   pickWord(room) {
     const all = this.getWords();
-    let pool = all.filter((e) => !room.usedWords.has(e.word));
+    let candidates = room.category ? all.filter((e) => e.category === room.category) : all;
+    // The category may have been removed from the words file since it was picked.
+    if (candidates.length === 0) candidates = all;
+    let pool = candidates.filter((e) => !room.usedWords.has(e.word));
     if (pool.length === 0) {
-      room.usedWords.clear();
-      pool = all;
+      for (const e of candidates) room.usedWords.delete(e.word);
+      pool = candidates;
     }
     const entry = pool[randomInt(pool.length)];
     room.usedWords.add(entry.word);
@@ -156,6 +170,8 @@ export class Game {
       meId: playerId,
       hostId: room.hostId,
       minPlayers: MIN_PLAYERS,
+      categories: this.categories(),
+      category: room.category,
       players: [...room.players.values()]
         .sort((a, b) => a.joinedAt - b.joinedAt)
         .map((p) => ({

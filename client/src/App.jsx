@@ -262,7 +262,7 @@ function Room({ state, run, onLeave }) {
       </header>
 
       {round ? (
-        <RoundView key={round.number} round={round} isHost={isHost} run={run} />
+        <RoundView key={round.number} state={state} round={round} isHost={isHost} run={run} />
       ) : (
         <Lobby state={state} isHost={isHost} run={run} />
       )}
@@ -285,6 +285,7 @@ function Lobby({ state, isHost, run }) {
       </p>
       {isHost ? (
         <>
+          <CategoryPicker state={state} run={run} label="Category" />
           <button className="btn primary big" disabled={!enough} onClick={() => run('newRound')}>
             Start game
           </button>
@@ -295,13 +296,18 @@ function Lobby({ state, isHost, run }) {
           )}
         </>
       ) : (
-        <p className="waiting center">Waiting for {host?.name ?? 'the host'} to start…</p>
+        <>
+          <p className="muted center">
+            Category: <strong className="text">{state.category ?? 'Random'}</strong>
+          </p>
+          <p className="waiting center">Waiting for {host?.name ?? 'the host'} to start…</p>
+        </>
       )}
     </section>
   );
 }
 
-function RoundView({ round, isHost, run }) {
+function RoundView({ state, round, isHost, run }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
@@ -336,9 +342,12 @@ function RoundView({ round, isHost, run }) {
       <p className="muted center small-text">{revealed ? 'Tap the card to hide it' : ' '}</p>
 
       {isHost && (
-        <ConfirmButton className="btn danger" confirmText="Tap again to end this round" onConfirm={() => run('newRound')}>
-          End game
-        </ConfirmButton>
+        <>
+          <ConfirmButton className="btn danger" confirmText="Tap again to end this round" onConfirm={() => run('newRound')}>
+            End game
+          </ConfirmButton>
+          <CategoryPicker state={state} run={run} label="Next round's category" />
+        </>
       )}
     </section>
   );
@@ -367,6 +376,32 @@ function CardFace({ round, run }) {
       <div className="role-tag">{round.role === 'waiting' ? 'Spectating' : 'Your word'}</div>
       <div className="word">{round.word}</div>
       <div className="category">{round.category}</div>
+    </div>
+  );
+}
+
+/** Host-only choice of category for upcoming rounds; "Random" draws from every category. */
+function CategoryPicker({ state, run, label }) {
+  const options = [{ value: null, name: 'Random' }, ...state.categories.map((c) => ({ value: c, name: c }))];
+  return (
+    <div className="category-picker">
+      <div className="label">{label}</div>
+      <div className="chips" role="radiogroup" aria-label={label}>
+        {options.map((o) => {
+          const selected = (state.category ?? null) === o.value;
+          return (
+            <button
+              key={o.name}
+              role="radio"
+              aria-checked={selected}
+              className={`chip ${selected ? 'selected' : ''}`}
+              onClick={() => !selected && run('setCategory', { category: o.value })}
+            >
+              {o.name}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

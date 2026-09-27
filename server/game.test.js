@@ -6,6 +6,7 @@ import { Game, parseWords } from './game.js';
 const words = [
   { word: 'Toaster', category: 'Objects' },
   { word: 'Friends', category: 'TV Shows' },
+  { word: 'Kettle', category: 'Objects' },
 ];
 
 function roomWith(n) {
@@ -94,4 +95,29 @@ test('a round drops back to the lobby when players leave below the minimum', () 
   assert.equal(room.hostId, 'p1');
   assert.equal(room.round, null);
   assert.equal(game.viewFor(room, 'p1').round, null);
+});
+
+test('host-picked category is used for every round until changed', () => {
+  const { game, room } = roomWith(2);
+  assert.deepEqual(game.viewFor(room, 'p0').categories, ['Objects', 'TV Shows']);
+  game.setCategory(room, 'Objects');
+  assert.equal(game.viewFor(room, 'p1').category, 'Objects');
+  const seen = new Set();
+  for (let i = 0; i < 6; i++) {
+    const r = game.nextRound(room);
+    assert.equal(r.category, 'Objects');
+    seen.add(r.word);
+  }
+  assert.deepEqual([...seen].sort(), ['Kettle', 'Toaster']); // cycles within the category
+  game.setCategory(room, 'TV Shows');
+  assert.equal(game.nextRound(room).word, 'Friends');
+});
+
+test('unknown category falls back to random', () => {
+  const { game, room } = roomWith(2);
+  game.setCategory(room, 'Nope');
+  assert.equal(room.category, null);
+  game.setCategory(room, 'Objects');
+  game.setCategory(room, null);
+  assert.equal(room.category, null);
 });

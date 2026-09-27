@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
@@ -17,11 +17,16 @@ const DISCONNECT_GRACE_MS = Number(process.env.DISCONNECT_GRACE_MS) || 10 * 60 *
 console.log(`Loaded ${loadWords(WORDS_FILE).length} words from ${WORDS_FILE}`);
 
 let cachedWords = null;
+let cachedMtime = 0;
 const game = new Game({
-  // Re-read each round so the file can be edited without restarting the container.
+  // Re-read whenever the file changes so it can be edited without restarting the container.
   getWords: () => {
     try {
-      cachedWords = loadWords(WORDS_FILE);
+      const { mtimeMs } = statSync(WORDS_FILE);
+      if (!cachedWords || mtimeMs !== cachedMtime) {
+        cachedWords = loadWords(WORDS_FILE);
+        cachedMtime = mtimeMs;
+      }
     } catch (err) {
       console.error(`Could not reload ${WORDS_FILE}, using previous list:`, err.message);
     }
@@ -130,6 +135,15 @@ io.on('connection', (socket) => {
     } catch (err) {
       return fail(ack, err.message);
     }
+    broadcast(room);
+    ack?.({ ok: true });
+  });
+
+  // Host picks the category for upcoming rounds (null = random). Takes effect next deal.
+  socket.on('setCategory', ({ category } = {}, ack) => {
+    if (!room) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can pick the category');
+    game.setCategory(room, category ?? null);
     broadcast(room);
     ack?.({ ok: true });
   });

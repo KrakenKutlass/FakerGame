@@ -489,3 +489,41 @@ h2 {
     padding: 0;
   }
 }
+
+/* Category picker (host) */
+.category-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.chip {
+  padding: 12px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.chip:active {
+  transform: scale(0.98);
+}
+.chip.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.text {
+  color: var(--text);
+}
+.round .category-picker {
+  margin-top: 10px;
+}
