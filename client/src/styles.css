@@ -463,26 +463,29 @@ h2 {
   align-self: center;
 }
 
-/* Brand logo, top-left on every screen */
+/* Brand logo. Narrow screens: bottom-centre footer that follows the content, so a long
+   player list pushes it down rather than being covered. Wide screens: the window's top-left
+   corner, clear of the game column. */
 .site-logo {
   display: block;
-  height: 32px;
   width: auto;
-  /* .app is a flex column, which would otherwise stretch the image to full width. */
-  align-self: flex-start;
-  margin-bottom: 18px;
   pointer-events: none;
+  /* .app is a flex column, which would otherwise stretch the image to full width. */
+  order: 1;
+  height: 26px;
+  align-self: center;
+  margin-top: auto;
+  padding-top: 28px;
+  box-sizing: content-box;
 }
 
-/* On phones the logo sits bottom-centre as a footer, so the game gets the top of the screen.
-   It follows the content, so a long player list pushes it down rather than covering anything. */
-@media (max-width: 600px) {
+@media (min-width: 900px) {
   .site-logo {
-    order: 1;
-    height: 26px;
-    align-self: center;
-    margin-top: auto;
-    padding-top: 28px;
-    box-sizing: content-box;
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    height: 36px;
+    margin: 0;
+    padding: 0;
   }
 }
