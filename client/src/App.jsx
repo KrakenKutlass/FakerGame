@@ -119,6 +119,7 @@ export default function App() {
   return (
     <div className="app">
       {!connected && <div className="banner">Connecting…</div>}
+      <img className="site-logo" src="/gamenite-logo.png" alt="GameNite" draggable="false" />
       {state ? (
         <Room state={state} run={run} onLeave={leave} />
       ) : (

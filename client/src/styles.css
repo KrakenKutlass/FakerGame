@@ -124,7 +124,7 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding-top: 6vh;
+  padding-top: 3vh;
 }
 .brand {
   text-align: center;
@@ -460,4 +460,13 @@ h2 {
 }
 .center-self {
   align-self: center;
+}
+
+/* Brand logo, top-left on every screen */
+.site-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+  margin-bottom: 18px;
+  pointer-events: none;
 }
