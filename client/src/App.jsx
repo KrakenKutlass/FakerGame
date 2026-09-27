@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import QRCode from 'qrcode';
 
 const socket = io({ autoConnect: false });
 
@@ -39,6 +40,16 @@ function getPlayerId() {
 
 const playerId = getPlayerId();
 
+// Room code from an invite link / QR code (e.g. /?room=ABCD).
+const inviteCode = (new URLSearchParams(window.location.search).get('room') || '')
+  .toUpperCase()
+  .replace(/[^A-Z]/g, '')
+  .slice(0, 4);
+
+function inviteUrl(code) {
+  return `${window.location.origin}/?room=${code}`;
+}
+
 function emit(event, payload) {
   return new Promise((resolve) => socket.emit(event, payload, resolve));
 }
@@ -54,7 +65,8 @@ export default function App() {
       setConnected(true);
       // Rejoin automatically after a refresh or when a locked phone wakes up.
       const code = storage.get('faker.room');
-      if (code) {
+      // A scanned invite to a different room wins over the last room we were in.
+      if (code && (!inviteCode || inviteCode === code)) {
         const res = await emit('join', { playerId, code, name: storage.get('faker.name') });
         if (res?.error) {
           storage.set('faker.room', '');
@@ -66,6 +78,8 @@ export default function App() {
     const onState = (next) => {
       setState(next);
       storage.set('faker.room', next.code);
+      // Drop ?room= once we're in, so a later refresh doesn't pull us back to an old invite.
+      if (window.location.search) window.history.replaceState(null, '', window.location.pathname);
     };
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
@@ -126,11 +140,48 @@ export default function App() {
 }
 
 function Home({ name, setName, disabled, onCreate, onJoin }) {
-  const [code, setCode] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('room');
-    return (fromUrl || '').toUpperCase().slice(0, 4);
-  });
+  const [code, setCode] = useState(inviteCode);
+  const [invited, setInvited] = useState(inviteCode.length === 4);
   const hasName = name.trim().length > 0;
+
+  if (invited) {
+    return (
+      <main className="home">
+        <header className="brand">
+          <div className="logo" aria-hidden="true">🕵️</div>
+          <h1>Faker</h1>
+          <p className="muted">
+            You're joining room <strong className="accent">{code}</strong>
+          </p>
+        </header>
+        <form
+          className="join"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onJoin(code);
+          }}
+        >
+          <label className="field">
+            <span>Your name</span>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={20}
+              placeholder="e.g. Jamie"
+              autoComplete="nickname"
+              autoFocus
+            />
+          </label>
+          <button type="submit" className="btn primary big" disabled={disabled || !hasName}>
+            Join room
+          </button>
+        </form>
+        <button className="btn ghost small center-self" onClick={() => setInvited(false)}>
+          Use a different room
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="home">
@@ -189,13 +240,19 @@ function Home({ name, setName, disabled, onCreate, onJoin }) {
 function Room({ state, run, onLeave }) {
   const isHost = state.hostId === state.meId;
   const { round } = state;
+  const [showQr, setShowQr] = useState(false);
 
   return (
     <main className="room">
       <header className="room-header">
         <div>
           <div className="label">Room</div>
-          <div className="room-code">{state.code}</div>
+          <div className="room-code-row">
+            <div className="room-code">{state.code}</div>
+            <button className="qr-btn" onClick={() => setShowQr(true)} aria-label="Show QR code to join">
+              <QrIcon />
+            </button>
+          </div>
         </div>
         {round && <div className="round-no">Round {round.number}</div>}
         <button className="btn ghost small" onClick={onLeave}>
@@ -210,6 +267,7 @@ function Room({ state, run, onLeave }) {
       )}
 
       <PlayerList state={state} />
+      {showQr && <QrModal code={state.code} onClose={() => setShowQr(false)} />}
     </main>
   );
 }
@@ -359,5 +417,38 @@ function PlayerList({ state }) {
         ))}
       </ul>
     </section>
+  );
+}
+
+function QrModal({ code, onClose }) {
+  const [src, setSrc] = useState('');
+  const url = inviteUrl(code);
+
+  useEffect(() => {
+    QRCode.toDataURL(url, { width: 720, margin: 2, errorCorrectionLevel: 'M' }).then(setSrc, () => setSrc(''));
+  }, [url]);
+
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="qr-overlay" role="dialog" aria-modal="true" aria-label="Scan to join" onClick={onClose}>
+      <div className="qr-title">Scan to join</div>
+      <div className="qr-image">{src && <img src={src} alt={`QR code to join room ${code}`} />}</div>
+      <div className="qr-code-text">{code}</div>
+      <div className="muted small-text qr-url">{url}</div>
+      <div className="muted small-text">Tap anywhere to close</div>
+    </div>
+  );
+}
+
+function QrIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+      <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm8-2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm2 2h2v2h-2v-2zm-6 2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm2 2h2v2h-2v-2z" />
+    </svg>
   );
 }
