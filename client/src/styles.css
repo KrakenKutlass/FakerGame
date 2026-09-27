@@ -549,3 +549,28 @@ h2 {
   color: var(--accent);
   font-size: 0.8rem;
 }
+
+/* Shown on the card for a moment after the group skips a word */
+.skip-announce {
+  animation: announce 3s ease forwards;
+}
+.skip-announce .cover-title {
+  font-size: 1.8rem;
+}
+.skip-announce-sub {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--accent);
+}
+@keyframes announce {
+  0% {
+    opacity: 0;
+  }
+  12%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

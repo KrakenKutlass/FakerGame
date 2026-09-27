@@ -262,6 +262,21 @@ function Room({ state, run, onLeave }) {
   const isHost = state.hostId === state.meId;
   const { round } = state;
   const [showQr, setShowQr] = useState(false);
+  const [skipSplash, setSkipSplash] = useState(false);
+  const lastRound = useRef(round?.number ?? null);
+
+  // Only announce a skip when it happens live, not when rejoining a round that began with one.
+  useEffect(() => {
+    const prev = lastRound.current;
+    lastRound.current = round?.number ?? null;
+    if (round?.skipped && prev !== null && round.number > prev) setSkipSplash(Date.now());
+  }, [round?.number, round?.skipped]);
+
+  useEffect(() => {
+    if (!skipSplash) return;
+    const t = setTimeout(() => setSkipSplash(false), 3000);
+    return () => clearTimeout(t);
+  }, [skipSplash]);
 
   return (
     <main className="room">
@@ -282,13 +297,14 @@ function Room({ state, run, onLeave }) {
       </header>
 
       {round ? (
-        <RoundView key={round.number} round={round} isHost={isHost} run={run} />
+        <RoundView key={round.number} round={round} isHost={isHost} run={run} announcingSkip={Boolean(skipSplash)} />
       ) : (
         <Lobby state={state} isHost={isHost} run={run} />
       )}
 
       <PlayerList state={state} />
       {showQr && <QrModal code={state.code} onClose={() => setShowQr(false)} />}
+
     </main>
   );
 }
@@ -330,8 +346,10 @@ function Lobby({ state, isHost, run }) {
   );
 }
 
-function RoundView({ round, isHost, run }) {
+function RoundView({ round, isHost, run, announcingSkip }) {
   const [revealed, setRevealed] = useState(false);
+  // While the skip message is on the card, taps do nothing.
+  const toggle = () => !announcingSkip && setRevealed((r) => !r);
 
   return (
     <section className="round">
@@ -343,16 +361,21 @@ function RoundView({ round, isHost, run }) {
         className={`card ${revealed ? 'revealed' : ''}`}
         role="button"
         tabIndex={0}
-        onClick={() => setRevealed((r) => !r)}
+        onClick={toggle}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setRevealed((r) => !r);
+            toggle();
           }
         }}
         aria-label={revealed ? 'Tap to hide' : 'Tap to reveal'}
       >
-        {revealed ? (
+        {announcingSkip ? (
+          <div className="card-cover skip-announce" role="status">
+            <div className="cover-title">Word skipped</div>
+            <div className="skip-announce-sub">the impostor is still at large...</div>
+          </div>
+        ) : revealed ? (
           <CardFace round={round} run={run} />
         ) : (
           <div className="card-cover">
