@@ -49,6 +49,8 @@ svg {
   max-width: 480px;
   margin: 0 auto;
   padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
 }
 
 h1,
@@ -469,4 +471,16 @@ h2 {
   width: auto;
   margin-bottom: 18px;
   pointer-events: none;
+}
+
+/* On phones the logo sits bottom-centre as a footer, so the game gets the top of the screen.
+   It follows the content, so a long player list pushes it down rather than covering anything. */
+@media (max-width: 600px) {
+  .site-logo {
+    order: 1;
+    height: 26px;
+    margin: auto auto 0;
+    padding-top: 28px;
+    box-sizing: content-box;
+  }
 }
