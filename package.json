@@ -1,0 +1,28 @@
+{
+  "name": "fakergame",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pass-the-table impostor word game for phones",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n server,client \"node --watch server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "test": "node --test server/game.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "socket.io-client": "^4.8.1",
+    "vite": "^6.0.7"
+  }
+}

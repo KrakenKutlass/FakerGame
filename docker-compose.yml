@@ -1,0 +1,10 @@
+services:
+  faker:
+    build: .
+    container_name: faker
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    # Optional: edit words.txt on the host without rebuilding (picked up at the next round).
+    volumes:
+      - ./words.txt:/app/words.txt:ro

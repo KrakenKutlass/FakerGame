@@ -1,0 +1,369 @@
+# FakerGame word list
+#
+# Put each category on a line in [square brackets], then one word per line under it.
+# The impostor sees only the category name, so pick names that are a helpful hint.
+# Lines starting with # and blank lines are ignored.
+# This file is re-read at the start of each round, so edits take effect without a restart.
+
+[Objects]
+Toaster
+Umbrella
+Toothbrush
+Backpack
+Candle
+Guitar
+Microwave
+Scissors
+Pillow
+Lamp
+Mirror
+Sofa
+Kettle
+Bicycle
+Skateboard
+Headphones
+Remote Control
+Wallet
+Sunglasses
+Stapler
+Hammer
+Ladder
+Bucket
+Blender
+Vacuum Cleaner
+Frying Pan
+Teapot
+Clock
+Calculator
+Keyboard
+Paintbrush
+Trampoline
+Tent
+Fridge
+Washing Machine
+Hairdryer
+Doorbell
+Suitcase
+Basketball
+Football
+Tennis Racket
+Chess Board
+Piano
+Violin
+Drum Kit
+Balloon
+Kite
+Telescope
+Microscope
+Compass
+Rolling Pin
+Coat Hanger
+Paperclip
+Envelope
+Postcard
+Passport
+Key
+Padlock
+Torch
+Battery
+Light Bulb
+Plant Pot
+Watering Can
+Lawnmower
+Wheelbarrow
+Shovel
+Toilet Roll
+Bathtub
+Shower Curtain
+Towel
+Sock
+Glove
+Scarf
+Crown
+Necklace
+Ring
+Watch
+Lipstick
+Perfume
+Magnifying Glass
+Dice
+Playing Cards
+Jigsaw Puzzle
+Teddy Bear
+Rubber Duck
+Snow Globe
+Fire Extinguisher
+Smoke Alarm
+Traffic Cone
+Shopping Trolley
+Pram
+Wheelchair
+Sandwich
+Pizza
+Birthday Cake
+Ice Cream
+Popcorn
+Banana
+Pineapple
+Coconut
+Doughnut
+Hot Dog
+Burger
+Spaghetti
+Sushi
+Treasure Chest
+Anchor
+Sword
+Shield
+Helmet
+Parachute
+Surfboard
+Snowman
+Sandcastle
+Christmas Tree
+Pumpkin
+Hot Air Balloon
+
+[TV Shows]
+Friends
+The Office
+Breaking Bad
+Game of Thrones
+Stranger Things
+The Simpsons
+Peaky Blinders
+Doctor Who
+Sherlock
+Only Fools and Horses
+Fawlty Towers
+Blackadder
+The Crown
+Downton Abbey
+Line of Duty
+Top Gear
+Gavin and Stacey
+Love Island
+The Great British Bake Off
+Strictly Come Dancing
+EastEnders
+Coronation Street
+Emmerdale
+Hollyoaks
+Mr Bean
+Only Connect
+Countdown
+Who Wants to Be a Millionaire
+Pointless
+The Chase
+Dragons' Den
+The Apprentice
+I'm a Celebrity
+Big Brother
+The X Factor
+Britain's Got Talent
+Grey's Anatomy
+The Walking Dead
+Lost
+Prison Break
+The Sopranos
+The Wire
+Mad Men
+Succession
+Ted Lasso
+The Mandalorian
+The Last of Us
+House of the Dragon
+Squid Game
+Money Heist
+Wednesday
+Bridgerton
+The Boys
+Black Mirror
+Fleabag
+Derry Girls
+The Inbetweeners
+Skins
+Misfits
+Red Dwarf
+Father Ted
+The IT Crowd
+Peep Show
+Brooklyn Nine-Nine
+Parks and Recreation
+How I Met Your Mother
+The Big Bang Theory
+Two and a Half Men
+Modern Family
+Seinfeld
+Frasier
+Cheers
+Scrubs
+House
+Dexter
+Suits
+Shameless
+Vikings
+The Witcher
+Westworld
+Better Call Saul
+Ozark
+Narcos
+Mindhunter
+Luther
+Broadchurch
+Happy Valley
+Bodyguard
+Killing Eve
+Sex Education
+Normal People
+The Bear
+Severance
+Yellowstone
+SpongeBob SquarePants
+Family Guy
+South Park
+Rick and Morty
+Futurama
+Bluey
+Peppa Pig
+Teletubbies
+Thomas the Tank Engine
+Pokemon
+Scooby-Doo
+Tom and Jerry
+Match of the Day
+Blue Peter
+Gladiators
+Taskmaster
+Would I Lie to You
+Mock the Week
+QI
+Have I Got News for You
+Friday Night Dinner
+Motherland
+Ghosts
+Stath Lets Flats
+Doctor Foster
+Only Murders in the Building
+
+[Movies]
+Titanic
+Jaws
+Star Wars
+The Lion King
+Toy Story
+Finding Nemo
+Frozen
+Shrek
+Harry Potter
+The Lord of the Rings
+Jurassic Park
+The Matrix
+Inception
+Interstellar
+The Dark Knight
+Avatar
+Avengers Endgame
+Iron Man
+Spider-Man
+Black Panther
+Back to the Future
+Ghostbusters
+E.T.
+Home Alone
+The Godfather
+Pulp Fiction
+Forrest Gump
+The Shawshank Redemption
+Gladiator
+Braveheart
+Rocky
+Top Gun
+Mission Impossible
+James Bond
+Die Hard
+Terminator
+Alien
+Predator
+The Shining
+It
+Scream
+Halloween
+Grease
+Mamma Mia
+The Greatest Showman
+La La Land
+Barbie
+Oppenheimer
+Mean Girls
+Clueless
+Legally Blonde
+Pretty Woman
+Notting Hill
+Love Actually
+Bridget Jones's Diary
+Four Weddings and a Funeral
+Paddington
+Mary Poppins
+The Wizard of Oz
+The Sound of Music
+Charlie and the Chocolate Factory
+Matilda
+The Parent Trap
+Mrs Doubtfire
+Jumanji
+Night at the Museum
+Pirates of the Caribbean
+Indiana Jones
+The Hunger Games
+Twilight
+The Fast and the Furious
+Transformers
+Despicable Me
+Minions
+Up
+Monsters Inc
+Cars
+Inside Out
+Coco
+Moana
+Aladdin
+Beauty and the Beast
+The Little Mermaid
+Cinderella
+Snow White
+The Jungle Book
+101 Dalmatians
+Kung Fu Panda
+Madagascar
+Ice Age
+Wallace and Gromit
+Chicken Run
+Hot Fuzz
+Shaun of the Dead
+Trainspotting
+Lock Stock and Two Smoking Barrels
+Snatch
+Kingsman
+The Italian Job
+Billy Elliot
+Slumdog Millionaire
+Bohemian Rhapsody
+Rocketman
+The Wolf of Wall Street
+The Revenant
+Joker
+Deadpool
+Dune
+Gravity
+The Martian
+Everything Everywhere All at Once
+Free Willy
+Babe
+The Truman Show
+Groundhog Day
+Dirty Dancing
+Footloose
+Elf
+The Grinch
+The Polar Express
