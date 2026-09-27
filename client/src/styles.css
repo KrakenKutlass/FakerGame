@@ -469,6 +469,8 @@ h2 {
   display: block;
   height: 32px;
   width: auto;
+  /* .app is a flex column, which would otherwise stretch the image to full width. */
+  align-self: flex-start;
   margin-bottom: 18px;
   pointer-events: none;
 }
@@ -479,7 +481,8 @@ h2 {
   .site-logo {
     order: 1;
     height: 26px;
-    margin: auto auto 0;
+    align-self: center;
+    margin-top: auto;
     padding-top: 28px;
     box-sizing: content-box;
   }
