@@ -6,7 +6,6 @@
   --text: #eceef5;
   --muted: #8a90a6;
   --accent: #8b5cf6;
-  --accent-2: #b3a8ff;
   --danger: #ff5d6c;
   --radius: 16px;
   color-scheme: dark;
@@ -68,7 +67,7 @@ h2 {
   font-size: 0.85rem;
 }
 .accent {
-  color: var(--accent-2);
+  color: var(--accent);
   letter-spacing: 0.1em;
 }
 
@@ -218,7 +217,7 @@ h2 {
   padding: 6px 12px;
   border-radius: 999px;
   background: var(--surface-2);
-  color: var(--accent-2);
+  color: var(--accent);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -255,7 +254,7 @@ h2 {
   padding: 12px 14px;
   border-radius: 12px;
   background: var(--surface-2);
-  color: var(--accent-2);
+  color: var(--accent);
   font-size: 0.9rem;
   text-align: center;
 }
@@ -369,7 +368,7 @@ h2 {
   color: var(--muted);
 }
 .tag.host {
-  color: var(--accent-2);
+  color: var(--accent);
 }
 
 /* Status */
@@ -417,7 +416,7 @@ h2 {
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface-2);
-  color: var(--accent-2);
+  color: var(--accent);
   cursor: pointer;
 }
 .qr-btn:active {
