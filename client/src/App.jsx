@@ -407,7 +407,12 @@ function RoundView({ round, isHost, run, announcingSkip, hostName }) {
   const info = MODE_INFO[round.kind];
   const phase = act ? round.phase : null;
   // During the skip message, the countdown, and the "Impostor won" screen the card can't be flipped.
-  const locked = announcingSkip || phase === 'acting' || phase === 'impostorWon';
+  // After the reveal only the impostor can flip (to reach "They got me"); innocents have no reason to.
+  const locked =
+    announcingSkip ||
+    phase === 'acting' ||
+    phase === 'impostorWon' ||
+    (phase === 'revealed' && round.role !== 'impostor');
   const toggle = () => !locked && setRevealed((r) => !r);
 
   // Each phase starts with the card face-down (e.g. the reveal shows the statement, not your card).
@@ -453,7 +458,6 @@ function RoundView({ round, isHost, run, announcingSkip, hostName }) {
           <div className="card-cover">
             <div className="role-tag">The statement was</div>
             <div className="statement">{info.statement(round.prompt)}</div>
-            <div className="muted small-text">Tap for your card</div>
           </div>
         ) : (
           <div className="card-cover">
@@ -588,14 +592,15 @@ function ModePicker({ state, run }) {
       <div className="label">Mode</div>
       <div className="chips" role="radiogroup" aria-label="Mode">
         {state.modes.map((m) => {
-          const selected = state.mode === m;
+          // Mixed plays all three act modes, so light them up along with Mixed itself.
+          const selected = state.mode === m || (state.mode === 'mixed' && isActKind(m));
           return (
             <button
               key={m}
               role="radio"
               aria-checked={selected}
               className={`chip ${selected ? 'selected' : ''}`}
-              onClick={() => !selected && run('setMode', { mode: m })}
+              onClick={() => state.mode !== m && run('setMode', { mode: m })}
             >
               {MODE_INFO[m]?.name ?? m}
             </button>
