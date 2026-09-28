@@ -13,6 +13,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY server ./server
 COPY words.txt ./words.txt
+COPY prompts ./prompts
 COPY --from=build /app/dist ./dist
 USER node
 EXPOSE 3000

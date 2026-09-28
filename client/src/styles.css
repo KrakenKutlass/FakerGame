@@ -214,12 +214,13 @@ h2 {
   letter-spacing: 0.15em;
 }
 .round-no {
-  padding: 6px 12px;
+  white-space: nowrap;
+  padding: 5px 9px;
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--accent);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 .lobby {
   display: flex;
@@ -572,5 +573,136 @@ h2 {
   }
   100% {
     opacity: 0;
+  }
+}
+
+/* Act modes */
+.statement {
+  font-size: clamp(1.4rem, 6.5vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.count-number {
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  animation: count 1s ease-out;
+}
+@keyframes count {
+  0% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.count-action {
+  font-size: clamp(2.2rem, 11vw, 3rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.1;
+  animation: count 0.6s ease-out;
+}
+.won-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.won-sub {
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+.won-sub strong {
+  color: var(--text);
+}
+
+/* 5 modes in a 2-column grid: let the odd one out span the row */
+.chips > .chip:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+.category-picker p {
+  margin: 0;
+}
+
+/* 18+ switch */
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toggle-label .muted {
+  font-weight: 400;
+}
+.toggle-track {
+  flex-shrink: 0;
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.toggle.on .toggle-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.toggle.on .toggle-thumb {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+/* Keep the room header (code, QR, round badge, Leave) on one line on small phones */
+.room-header {
+  gap: 8px;
+}
+.room-header > .btn.small {
+  padding: 8px 12px;
+}
+@media (max-width: 370px) {
+  .room-code {
+    font-size: 1.45rem;
+  }
+  .qr-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .room-code-row {
+    gap: 6px;
+  }
+}
+@media (max-width: 340px) {
+  .round-word {
+    display: none;
   }
 }

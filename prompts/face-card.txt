@@ -1,0 +1,97 @@
+# Face Card — each line finishes the sentence "Pull the face you'd pull if ..."
+# [Clean] is always used. [18+] is added when the host turns on the 18+ switch.
+# This file is re-read whenever it changes, so edits take effect without a restart.
+
+[Clean]
+you stepped on a Lego
+you smelled something awful
+you saw a spider on your pillow
+you won the lottery
+you got a really bad haircut
+you bit into a lemon
+you saw your ex with someone new
+you forgot someone's name mid-conversation
+you left your phone on the bus
+your food arrived and it was the wrong order
+someone ate the last slice of your pizza
+you got a text saying "we need to talk"
+your crush waved at you
+you tripped in front of everyone
+you saw a ghost
+your friend told a really bad joke
+you got a parking ticket
+you saw the total at the till
+your team scored in the last minute
+your team conceded in the last minute
+someone farted in a lift
+you heard a noise downstairs at 3am
+your mum saw your search history
+you got a present you hated but had to pretend to love
+you opened your exam results
+you saw a puppy
+you got caught singing in the car
+you got brain freeze
+you stubbed your toe
+you saw someone wearing the same outfit as you
+someone sneezed on you
+your card got declined
+you realised you'd been on mute the whole call
+your alarm went off at 5am
+you walked into a surprise party
+you found a tenner in an old coat
+you drank sour milk
+someone said "can I ask you a question?"
+you heard your own voice on a recording
+you got a paper cut
+your phone was on 1%
+you saw the queue for the toilets
+someone spoiled the ending of your favourite show
+you were told there was no Wi-Fi
+you realised it's Monday tomorrow
+you saw a dog in the pub
+you tasted the best food of your life
+your friend turned up late for the fifth time
+someone was chewing loudly next to you
+you walked into the wrong toilets
+you were offered a Brussels sprout
+you had to hold in a sneeze
+you found out you'd won a holiday
+you saw a clown at your window
+you were handed a crying baby
+you missed the last train home
+you saw a wasp in your drink
+you got a hug from someone you don't like
+you got a 99p meal deal
+you heard the ice cream van
+
+[18+]
+you woke up next to someone you didn't recognise
+you read your drunk texts from last night
+you realised you'd drunk-called your ex
+your parents walked in on you and someone
+you took a shot of neat vodka
+someone you fancy asked you back to theirs
+you checked your bank account after a night out
+you got a text from someone saved as "DO NOT ANSWER"
+your one night stand turned out to be your new boss
+the bouncer said "not tonight"
+you took the first sip of a pint after a long week
+you heard your housemate through the wall
+you found a love bite in the mirror
+your ex turned up at the same party
+you saw your mum's dating profile
+last night's pull texted "that was a mistake"
+you realised you'd been flirting with someone's partner
+you matched with your teacher on a dating app
+your hangover kicked in at 2pm
+you saw the photos from last night
+you woke up next to a half-eaten kebab
+someone said "I love you" on the first date
+you found out your mate slept with your ex
+you saw your partner's search history
+you were dared to streak down the street
+you realised the person you pulled was a friend's sibling
+you found out your date still lives with their ex
+someone you pulled last week walked in with their partner
+the taxi driver said you'd have to pay for the clean-up
+you got a voice note from your ex at 3am

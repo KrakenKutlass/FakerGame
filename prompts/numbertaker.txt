@@ -1,0 +1,98 @@
+# Numbertaker — questions everyone answers by holding up fingers.
+# Every answer must fit on fingers: 0 to 10. Use "on a scale of 0 to 10" or questions with small answers.
+# [Clean] is always used. [18+] is added when the host turns on the 18+ switch.
+# This file is re-read whenever it changes, so edits take effect without a restart.
+
+[Clean]
+How many hours of sleep did you get last night?
+How many cups of tea or coffee have you had today?
+On a scale of 0 to 10, how good a cook are you?
+How many times have you been to the toilet today?
+How many pets have you had in your life?
+How many times have you cried this month?
+On a scale of 0 to 10, how scared are you of spiders?
+How many hours were you on your phone yesterday?
+How many brothers and sisters do you have?
+How many times did you hit snooze this morning?
+On a scale of 0 to 10, how competitive are you?
+How many pairs of trainers do you own?
+On a scale of 0 to 10, how good are you at singing?
+How many bones have you broken?
+How many days a week do you exercise?
+On a scale of 0 to 10, how much do you like pineapple on pizza?
+How many portions of fruit or veg have you eaten today?
+How many times have you moved house?
+On a scale of 0 to 10, how messy is your room right now?
+How many hours of TV did you watch yesterday?
+How many takeaways have you had this week?
+On a scale of 0 to 10, how much of a morning person are you?
+On a scale of 0 to 10, how good are you at keeping secrets?
+How many times have you been to the cinema this year?
+How many chocolate bars have you eaten this week?
+On a scale of 0 to 10, how much do you love Christmas?
+On a scale of 0 to 10, how brave are you?
+How many times have you watched your favourite film?
+How many hours have you spent gaming this week?
+How many concerts have you been to?
+On a scale of 0 to 10, how much do you trust the person on your left?
+How many fillings have you had?
+How many different jobs have you had?
+On a scale of 0 to 10, how organised are you?
+How many times have you been on a plane this year?
+On a scale of 0 to 10, how good are you at maths?
+How many nights out have you had this month?
+How many times have you changed your hair colour?
+How many packets of crisps have you eaten this week?
+How many times have you checked your phone in the last 10 minutes?
+On a scale of 0 to 10, how good a driver are you?
+How many alarms do you set in the morning?
+On a scale of 0 to 10, how likely are you to survive a zombie apocalypse?
+How many bedrooms are in your house?
+On a scale of 0 to 10, how sporty are you?
+How many times have you watched Shrek?
+How many meals did you eat yesterday?
+On a scale of 0 to 10, how funny do you think you are?
+How many times have you been stung by a bee or wasp?
+How many plants do you own?
+On a scale of 0 to 10, how much do you hate Mondays?
+How many hours ago did you last eat?
+On a scale of 0 to 10, how hungry are you right now?
+How many times have you been to the dentist this year?
+On a scale of 0 to 10, how good are you at dancing?
+How many showers have you had in the last 3 days?
+On a scale of 0 to 10, how much do you like the rain?
+How many rings are you wearing right now?
+On a scale of 0 to 10, how tired are you right now?
+How many times have you been abroad this year?
+
+[18+]
+How many drinks did you have on your last night out?
+On a scale of 0 to 10, how drunk did you get last weekend?
+How many people have you kissed this year?
+How many exes do you still follow on social media?
+How many times have you been sick from drinking this year?
+On a scale of 0 to 10, how fit do you find the person opposite you?
+How many dating apps have you had on your phone?
+How many first dates have you been on this year?
+On a scale of 0 to 10, how good a kisser are you?
+How many people in this room would you date?
+How many times have you drunk-texted an ex?
+How many shots can you do before you're gone?
+On a scale of 0 to 10, how bad was your worst hangover?
+How many times have you woken up somewhere you didn't recognise?
+How many of this month's nights out ended with a kebab?
+On a scale of 0 to 10, how flirty are you when you're drunk?
+How many people have you ghosted?
+On a scale of 0 to 10, how bad is your search history?
+How many times have you snuck someone into your room?
+How many people have you slid into the DMs of this year?
+On a scale of 0 to 10, how likely are you to go back to an ex?
+How many one night stands have you had?
+How many times have you been kicked out of a club or pub?
+On a scale of 0 to 10, how much do you fancy someone in this room?
+How many times have you lied about your age?
+On a scale of 0 to 10, how wild is your group chat?
+How many relationships have you been in?
+How many pints can you drink in one night?
+On a scale of 0 to 10, how bad was your last walk of shame?
+How many times have you pulled on a night out this year?

@@ -201,3 +201,129 @@ test('a player leaving can tip existing votes into a majority', () => {
   assert.equal(room.round.number, first.number + 1);
   assert.equal(room.round.impostorId, first.impostorId);
 });
+
+// --- Act modes (Hands Up / Face Card / Numbertaker / Mixed) ---
+
+const prompts = {
+  handsup: [
+    { word: 'can swim', category: 'Clean' },
+    { word: 'have been on a plane', category: 'Clean' },
+    { word: 'have sent a nude', category: '18+' },
+  ],
+  facecard: [{ word: 'you stepped on a Lego', category: 'Clean' }],
+  numbertaker: [{ word: 'How many pets?', category: 'Clean' }],
+};
+
+function actRoom(n, mode = 'handsup') {
+  const game = new Game({ getWords: () => words, getPrompts: (k) => prompts[k] });
+  const room = game.createRoom('p0', 'Host');
+  for (let i = 1; i < n; i++) game.addPlayer(room, `p${i}`, `P${i}`);
+  game.setMode(room, mode);
+  return { game, room };
+}
+const civilianOf = (room) => [...room.players.keys()].find((id) => id !== room.round.impostorId);
+
+test('new rooms default to Categories with 18+ off; unknown modes fall back', () => {
+  const { game, room } = roomWith(2);
+  assert.equal(room.mode, 'categories');
+  assert.equal(room.adult, false);
+  game.setMode(room, 'nonsense');
+  assert.equal(room.mode, 'categories');
+});
+
+test('act round: impostor gets no statement until it is revealed to everyone', () => {
+  const { game, room } = actRoom(3);
+  const round = game.startRound(room);
+  assert.equal(round.kind, 'handsup');
+  assert.equal(round.phase, 'reading');
+  const imp = game.viewFor(room, round.impostorId).round;
+  const civ = game.viewFor(room, civilianOf(room)).round;
+  assert.equal(imp.prompt, undefined);
+  assert.equal(civ.prompt, round.prompt);
+  assert.throws(() => game.advance(room)); // can't Next before the reveal
+  game.ready(room);
+  assert.equal(game.viewFor(room, round.impostorId).round.prompt, undefined); // still hidden while acting
+  assert.equal(game.reveal(room, round), true);
+  assert.equal(game.viewFor(room, round.impostorId).round.prompt, round.prompt);
+});
+
+test('18+ statements only appear when the switch is on', () => {
+  const { game, room } = actRoom(2);
+  const seen = new Set();
+  for (let i = 0; i < 10; i++) seen.add(game.startRound(room).prompt);
+  assert.ok(!seen.has('have sent a nude'));
+  game.setAdult(room, true);
+  for (let i = 0; i < 10; i++) seen.add(game.startRound(room).prompt);
+  assert.ok(seen.has('have sent a nude'));
+});
+
+test('impostor survives up to 3 rounds, then wins, then a fresh round is dealt', () => {
+  const { game, room } = actRoom(3);
+  const first = game.startRound(room);
+  const imp = first.impostorId;
+  for (let streak = 1; streak <= 3; streak++) {
+    assert.equal(room.round.streak, streak);
+    assert.equal(room.round.impostorId, imp);
+    game.ready(room);
+    game.reveal(room, room.round);
+    game.advance(room);
+  }
+  assert.equal(room.round.phase, 'impostorWon');
+  assert.equal(game.viewFor(room, civilianOf(room)).round.impostorName, room.players.get(imp).name);
+  game.advance(room);
+  assert.equal(room.round.phase, 'reading');
+  assert.equal(room.round.streak, 1);
+});
+
+test('They got me resets the streak with a fresh impostor', () => {
+  const { game, room } = actRoom(3);
+  game.startRound(room);
+  game.ready(room);
+  game.reveal(room, room.round);
+  game.advance(room);
+  assert.equal(room.round.streak, 2);
+  game.nextRound(room);
+  assert.equal(room.round.streak, 1);
+});
+
+test('skipping keeps the impostor and does not count towards survival; only before Ready', () => {
+  const { game, room } = actRoom(2);
+  game.startRound(room);
+  game.ready(room);
+  game.reveal(room, room.round);
+  game.advance(room); // now on survival round 2
+  const imp = room.round.impostorId;
+  game.voteSkip(room, 'p0');
+  game.voteSkip(room, 'p1');
+  assert.equal(room.round.skipped, true);
+  assert.equal(room.round.streak, 2);
+  assert.equal(room.round.impostorId, imp);
+  game.ready(room);
+  assert.equal(game.viewFor(room, 'p0').round.skip.canVote, false);
+  assert.throws(() => game.voteSkip(room, 'p0'));
+});
+
+test('a stale reveal timer does nothing once the round has moved on', () => {
+  const { game, room } = actRoom(2);
+  const old = game.startRound(room);
+  game.ready(room);
+  game.nextRound(room);
+  assert.equal(game.reveal(room, old), false);
+  assert.equal(room.round.phase, 'reading');
+});
+
+test('Mixed deals only act modes, never Categories', () => {
+  const { game, room } = actRoom(2, 'mixed');
+  const kinds = new Set();
+  for (let i = 0; i < 40; i++) kinds.add(game.startRound(room).kind);
+  assert.deepEqual([...kinds].sort(), ['facecard', 'handsup', 'numbertaker']);
+});
+
+test('bundled statement files have Clean and 18+ sections', () => {
+  for (const file of ['hands-up.txt', 'face-card.txt', 'numbertaker.txt']) {
+    const parsed = parseWords(readFileSync(new URL(`../prompts/${file}`, import.meta.url), 'utf8'));
+    assert.deepEqual([...new Set(parsed.map((e) => e.category))], ['Clean', '18+'], file);
+    assert.equal(new Set(parsed.map((e) => e.word)).size, parsed.length, `${file} has duplicates`);
+    assert.ok(parsed.filter((e) => e.category === 'Clean').length >= 50, file);
+  }
+});

@@ -1,0 +1,103 @@
+# Hands Up — each line finishes the sentence "Raise your hand if you ..."
+# [Clean] is always used. [18+] is added when the host turns on the 18+ switch.
+# This file is re-read whenever it changes, so edits take effect without a restart.
+
+[Clean]
+have been on a plane
+have broken a bone
+can swim
+have been to Spain
+have been stung by a bee
+have dyed your hair
+have a tattoo
+have met a celebrity
+have been on TV
+have fallen asleep in a lesson
+have cried at a film
+have been to a festival
+still sleep with a teddy
+have a brother or sister
+have a pet
+have been sick on a car journey
+can ride a bike with no hands
+have been to a football match
+can play an instrument
+have lost your phone
+have a cracked phone screen right now
+have been in a fight
+have eaten a whole pizza by yourself
+have been to Disneyland
+can speak another language
+have a driving licence
+have failed a driving test
+have been locked out of your house
+have pretended to be ill to skip school
+have been to A&E
+have sent a text to the wrong person
+have been in a school play
+have won a trophy
+have gone viral online
+have stayed up all night
+have walked into a glass door
+have eaten a bug
+have been camping
+have been on a rollercoaster
+have been to a concert
+are scared of spiders
+are scared of the dark
+have ridden a horse
+have been skiing
+have had a part-time job
+have been fired from a job
+have had a detention
+have been sent out of class
+have a secret social media account
+have ghosted someone
+have broken something and blamed someone else
+have sung karaoke
+can do a cartwheel
+have fallen over in public
+have watched every Harry Potter film
+have been on a first date
+have eaten food off the floor
+have ever been on a cruise
+have ever been to a wedding
+can whistle
+
+[18+]
+have been blackout drunk
+have thrown up after drinking
+have kissed someone in this room
+have kissed someone whose name you didn't know
+have had a one night stand
+have sent a nude
+have snuck someone into your room
+have used a fake ID
+have been kicked out of a club
+have drunk texted an ex
+have gone back to an ex
+have fancied a friend's partner
+have been skinny dipping
+have been on a dating app
+have been catfished
+have slid into someone's DMs
+have fancied a teacher
+have woken up not knowing where you were
+have kissed more than one person in one night
+have hooked up with a friend
+have been walked in on
+have stalked an ex on social media
+have a crush on someone in this room
+have been caught lying to a partner
+have pulled at a festival
+have been dumped by text
+have dumped someone by text
+have lost your shoes on a night out
+have had a hangover that lasted two days
+have done a walk of shame
+have been sick in a taxi
+have hidden a love bite
+have flirted your way out of trouble
+have had a friends with benefits
+have sent a screenshot to the person it was about
+have dated two people at once

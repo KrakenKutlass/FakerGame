@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    # Optional: edit words.txt on the host without rebuilding (picked up at the next round).
+    # Optional: edit the word and statement lists on the host without rebuilding.
     volumes:
       - ./words.txt:/app/words.txt:ro
+      - ./prompts:/app/prompts:ro

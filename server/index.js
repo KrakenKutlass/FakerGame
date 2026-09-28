@@ -9,29 +9,46 @@ import { Game, cleanName, loadWords } from './game.js';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 3000;
 const WORDS_FILE = process.env.WORDS_FILE || resolve(root, 'words.txt');
+const PROMPTS_DIR = process.env.PROMPTS_DIR || resolve(root, 'prompts');
+const PROMPT_FILES = { handsup: 'hands-up.txt', facecard: 'face-card.txt', numbertaker: 'numbertaker.txt' };
+// After the host taps Ready: 3-2-1 countdown, then time to act, then the statement is revealed.
+const ACT_REVEAL_MS = 8000;
 const DIST_DIR = resolve(root, 'dist');
 // How long a player can be disconnected (e.g. phone screen locked) before they're dropped.
 const DISCONNECT_GRACE_MS = Number(process.env.DISCONNECT_GRACE_MS) || 10 * 60 * 1000;
 
 // Fail fast on a broken words file rather than at the first round.
 console.log(`Loaded ${loadWords(WORDS_FILE).length} words from ${WORDS_FILE}`);
+for (const file of Object.values(PROMPT_FILES)) loadWords(resolve(PROMPTS_DIR, file));
 
-let cachedWords = null;
-let cachedMtime = 0;
-const game = new Game({
-  // Re-read whenever the file changes so it can be edited without restarting the container.
-  getWords: () => {
+// Re-read a list whenever its file changes so it can be edited without restarting the container.
+function watchedList(path) {
+  let cached = null;
+  let cachedMtime = 0;
+  return () => {
     try {
-      const { mtimeMs } = statSync(WORDS_FILE);
-      if (!cachedWords || mtimeMs !== cachedMtime) {
-        cachedWords = loadWords(WORDS_FILE);
+      const { mtimeMs } = statSync(path);
+      if (!cached || mtimeMs !== cachedMtime) {
+        cached = loadWords(path);
         cachedMtime = mtimeMs;
       }
     } catch (err) {
-      console.error(`Could not reload ${WORDS_FILE}, using previous list:`, err.message);
+      console.error(`Could not reload ${path}, using previous list:`, err.message);
     }
-    return cachedWords;
-  },
+    return cached ?? [];
+  };
+}
+
+const promptLists = Object.fromEntries(
+  Object.entries(PROMPT_FILES).map(([kind, file]) => [kind, watchedList(resolve(PROMPTS_DIR, file))]),
+);
+for (const [kind, file] of Object.entries(PROMPT_FILES)) {
+  console.log(`Loaded ${promptLists[kind]().length} ${kind} statements from ${file}`);
+}
+
+const game = new Game({
+  getWords: watchedList(WORDS_FILE),
+  getPrompts: (kind) => promptLists[kind]?.() ?? [],
 });
 
 const app = express();
@@ -182,6 +199,56 @@ io.on('connection', (socket) => {
     }
     game.closeRoom(closing);
     current();
+    ack?.({ ok: true });
+  });
+
+  // Host's lobby settings for the act modes.
+  socket.on('setMode', ({ mode } = {}, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can pick the mode');
+    if (room.round) return fail(ack, 'End the game to change the mode');
+    game.setMode(room, mode);
+    broadcast(room);
+    ack?.({ ok: true });
+  });
+
+  socket.on('setAdult', ({ adult } = {}, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can change that');
+    if (room.round) return fail(ack, 'End the game to change that');
+    game.setAdult(room, adult);
+    broadcast(room);
+    ack?.({ ok: true });
+  });
+
+  // Host's Ready in the act modes: everyone acts, then the statement is revealed to all.
+  socket.on('ready', (_payload, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can do that');
+    let round;
+    try {
+      round = game.ready(room);
+    } catch (err) {
+      return fail(ack, err.message);
+    }
+    broadcast(room);
+    const r = room;
+    setTimeout(() => {
+      if (!r.closed && game.reveal(r, round)) broadcast(r);
+    }, ACT_REVEAL_MS);
+    ack?.({ ok: true });
+  });
+
+  // Host's Next in the act modes: same impostor survives into the next round, or impostor won.
+  socket.on('next', (_payload, ack) => {
+    if (!current()) return fail(ack, 'Not in a room');
+    if (room.hostId !== playerId) return fail(ack, 'Only the host can do that');
+    try {
+      game.advance(room);
+    } catch (err) {
+      return fail(ack, err.message);
+    }
+    broadcast(room);
     ack?.({ ok: true });
   });
 

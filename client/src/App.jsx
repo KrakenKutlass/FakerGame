@@ -47,6 +47,32 @@ let inviteCode = (new URLSearchParams(window.location.search).get('room') || '')
   .replace(/[^A-Z]/g, '')
   .slice(0, 4);
 
+// How each mode is named and worded on screen.
+const MODE_INFO = {
+  categories: { name: 'Categories' },
+  handsup: {
+    name: 'Hands Up',
+    statement: (p) => `Raise your hand if you ${p}`,
+    action: 'Hands up!',
+    impostorHint: "You don't get the statement. When the countdown ends, read the room: hand up, or not?",
+  },
+  facecard: {
+    name: 'Face Card',
+    statement: (p) => `Pull the face you'd pull if ${p}`,
+    action: 'Pull your face!',
+    impostorHint: "You don't get the scenario. When the countdown ends, copy the room's face.",
+  },
+  numbertaker: {
+    name: 'Numbertaker',
+    statement: (p) => p,
+    note: 'Answer 0–10 on your fingers',
+    action: 'Show your number!',
+    impostorHint: "You don't get the question. When the countdown ends, hold up a number that blends in (0–10).",
+  },
+  mixed: { name: 'Mixed' },
+};
+const isActKind = (kind) => kind === 'handsup' || kind === 'facecard' || kind === 'numbertaker';
+
 function inviteUrl(code) {
   return `${window.location.origin}/?room=${code}`;
 }
@@ -270,6 +296,8 @@ function Room({ state, run, onLeave }) {
     const prev = lastRound.current;
     lastRound.current = round?.number ?? null;
     if (round?.skipped && prev !== null && round.number > prev) setSkipSplash(Date.now());
+    // Any other change (next round, End game, a new game) cuts the message short.
+    else if (prev !== lastRound.current) setSkipSplash(false);
   }, [round?.number, round?.skipped]);
 
   useEffect(() => {
@@ -290,14 +318,26 @@ function Room({ state, run, onLeave }) {
             </button>
           </div>
         </div>
-        {round && <div className="round-no">Round {round.number}</div>}
+        {round && (
+          <div className="round-no">
+            <span className="round-word">Round </span>
+            {isActKind(round.kind) ? `${round.streak}/${round.maxStreak}` : round.number}
+          </div>
+        )}
         <button className="btn ghost small" onClick={onLeave}>
           Leave
         </button>
       </header>
 
       {round ? (
-        <RoundView key={round.number} round={round} isHost={isHost} run={run} announcingSkip={Boolean(skipSplash)} />
+        <RoundView
+          key={round.number}
+          round={round}
+          isHost={isHost}
+          run={run}
+          announcingSkip={Boolean(skipSplash)}
+          hostName={state.players.find((p) => p.id === state.hostId)?.name}
+        />
       ) : (
         <Lobby state={state} isHost={isHost} run={run} />
       )}
@@ -321,7 +361,12 @@ function Lobby({ state, isHost, run }) {
       </p>
       {isHost ? (
         <>
-          <CategoryPicker state={state} run={run} label="Category" />
+          <ModePicker state={state} run={run} />
+          {state.mode === 'categories' ? (
+            <CategoryPicker state={state} run={run} label="Category" />
+          ) : (
+            <AdultToggle state={state} run={run} />
+          )}
           <button className="btn primary big" disabled={!enough} onClick={() => run('newRound')}>
             Start game
           </button>
@@ -337,7 +382,17 @@ function Lobby({ state, isHost, run }) {
       ) : (
         <>
           <p className="muted center">
-            Category: <strong className="text">{state.category ?? 'Random'}</strong>
+            Mode: <strong className="text">{MODE_INFO[state.mode]?.name}</strong>
+            {' · '}
+            {state.mode === 'categories' ? (
+              <>
+                Category: <strong className="text">{state.category ?? 'Random'}</strong>
+              </>
+            ) : (
+              <>
+                18+: <strong className="text">{state.adult ? 'On' : 'Off'}</strong>
+              </>
+            )}
           </p>
           <p className="waiting center">Waiting for {host?.name ?? 'the host'} to start…</p>
         </>
@@ -346,10 +401,17 @@ function Lobby({ state, isHost, run }) {
   );
 }
 
-function RoundView({ round, isHost, run, announcingSkip }) {
+function RoundView({ round, isHost, run, announcingSkip, hostName }) {
   const [revealed, setRevealed] = useState(false);
-  // While the skip message is on the card, taps do nothing.
-  const toggle = () => !announcingSkip && setRevealed((r) => !r);
+  const act = isActKind(round.kind);
+  const info = MODE_INFO[round.kind];
+  const phase = act ? round.phase : null;
+  // During the skip message, the countdown, and the "Impostor won" screen the card can't be flipped.
+  const locked = announcingSkip || phase === 'acting' || phase === 'impostorWon';
+  const toggle = () => !locked && setRevealed((r) => !r);
+
+  // Each phase starts with the card face-down (e.g. the reveal shows the statement, not your card).
+  useEffect(() => setRevealed(false), [phase]);
 
   return (
     <section className="round">
@@ -372,11 +434,27 @@ function RoundView({ round, isHost, run, announcingSkip }) {
       >
         {announcingSkip ? (
           <div className="card-cover skip-announce" role="status">
-            <div className="cover-title">Word skipped</div>
+            <div className="cover-title">{act ? 'Statement skipped' : 'Word skipped'}</div>
             <div className="skip-announce-sub">the impostor is still at large...</div>
+          </div>
+        ) : phase === 'acting' ? (
+          <Countdown action={info.action} />
+        ) : phase === 'impostorWon' ? (
+          <div className="card-cover" role="status">
+            <div className="cover-icon" aria-hidden="true">🕵️</div>
+            <div className="won-title">Impostor won!</div>
+            <div className="won-sub">
+              <strong>{round.impostorName}</strong> survived {round.maxStreak} rounds without getting caught
+            </div>
           </div>
         ) : revealed ? (
           <CardFace round={round} run={run} />
+        ) : phase === 'revealed' ? (
+          <div className="card-cover">
+            <div className="role-tag">The statement was</div>
+            <div className="statement">{info.statement(round.prompt)}</div>
+            <div className="muted small-text">Tap for your card</div>
+          </div>
         ) : (
           <div className="card-cover">
             <div className="cover-icon" aria-hidden="true">👁️</div>
@@ -385,11 +463,28 @@ function RoundView({ round, isHost, run, announcingSkip }) {
           </div>
         )}
       </div>
-      <p className="muted center small-text">{revealed ? 'Tap the card to hide it' : ' '}</p>
+      <p className="muted center small-text">
+        {revealed && !locked
+          ? 'Tap the card to hide it'
+          : phase === 'reading' && !isHost
+            ? `When everyone's read their card, ${hostName ?? 'the host'} will tap Ready`
+            : ' '}
+      </p>
+
+      {isHost && phase === 'reading' && (
+        <button className="btn primary big" onClick={() => run('ready')}>
+          Ready
+        </button>
+      )}
+      {isHost && (phase === 'revealed' || phase === 'impostorWon') && (
+        <button className="btn primary big" onClick={() => run('next')}>
+          Next round
+        </button>
+      )}
 
       {round.skip.canVote && (
         <button className={`btn small skip-btn ${round.skip.voted ? 'voted' : ''}`} onClick={() => run('voteSkip')}>
-          {round.skip.voted ? 'Voted to skip' : 'Skip word'}
+          {round.skip.voted ? 'Voted to skip' : act ? 'Skip statement' : 'Skip word'}
           <span className="skip-count">
             {round.skip.votes}/{round.skip.needed}
           </span>
@@ -406,6 +501,7 @@ function RoundView({ round, isHost, run, announcingSkip }) {
 }
 
 function CardFace({ round, run }) {
+  if (isActKind(round.kind)) return <ActCardFace round={round} run={run} />;
   if (round.role === 'impostor') {
     return (
       <div className="card-face">
@@ -429,6 +525,104 @@ function CardFace({ round, run }) {
       <div className="word">{round.word}</div>
       <div className="category">{round.category}</div>
     </div>
+  );
+}
+
+function ActCardFace({ round, run }) {
+  const info = MODE_INFO[round.kind];
+  if (round.role === 'impostor') {
+    return (
+      <div className="card-face">
+        <div className="role-tag">{info.name} · Impostor</div>
+        <div className="impostor-line">You are the impostor, blend in</div>
+        {round.prompt ? (
+          <div className="category">
+            The statement was: <strong>{info.statement(round.prompt)}</strong>
+          </div>
+        ) : (
+          <div className="category">{info.impostorHint}</div>
+        )}
+        {/* Lives inside the card so it can't give the impostor away while the card is hidden. */}
+        <div onClick={(e) => e.stopPropagation()} className="card-action">
+          <ConfirmButton className="btn danger" confirmText="Tap again to confirm" onConfirm={() => run('newRound')}>
+            They got me
+          </ConfirmButton>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="card-face">
+      <div className="role-tag">{round.role === 'waiting' ? `${info.name} · Spectating` : info.name}</div>
+      <div className="statement">{info.statement(round.prompt)}</div>
+      {info.note && <div className="category">{info.note}</div>}
+    </div>
+  );
+}
+
+/** 3-2-1 on every phone after the host taps Ready, then the action to perform. */
+function Countdown({ action }) {
+  const [n, setN] = useState(3);
+  useEffect(() => {
+    if (n === 0) return;
+    const t = setTimeout(() => setN(n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [n]);
+  return (
+    <div className="card-cover" role="status" aria-live="assertive">
+      {n > 0 ? (
+        <div key={n} className="count-number">
+          {n}
+        </div>
+      ) : (
+        <div className="count-action">{action}</div>
+      )}
+    </div>
+  );
+}
+
+/** Host-only game mode choice in the lobby. */
+function ModePicker({ state, run }) {
+  return (
+    <div className="category-picker">
+      <div className="label">Mode</div>
+      <div className="chips" role="radiogroup" aria-label="Mode">
+        {state.modes.map((m) => {
+          const selected = state.mode === m;
+          return (
+            <button
+              key={m}
+              role="radio"
+              aria-checked={selected}
+              className={`chip ${selected ? 'selected' : ''}`}
+              onClick={() => !selected && run('setMode', { mode: m })}
+            >
+              {MODE_INFO[m]?.name ?? m}
+            </button>
+          );
+        })}
+      </div>
+      {state.mode === 'mixed' && <p className="muted small-text">A random mix of Hands Up, Face Card and Numbertaker</p>}
+    </div>
+  );
+}
+
+function AdultToggle({ state, run }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={state.adult}
+      className={`toggle ${state.adult ? 'on' : ''}`}
+      onClick={() => run('setAdult', { adult: !state.adult })}
+    >
+      <span className="toggle-label">
+        18+ statements
+        <span className="muted small-text">{state.adult ? 'Spicy ones included' : 'Clean only'}</span>
+      </span>
+      <span className="toggle-track" aria-hidden="true">
+        <span className="toggle-thumb" />
+      </span>
+    </button>
   );
 }
 
