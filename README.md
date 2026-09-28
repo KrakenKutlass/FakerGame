@@ -36,6 +36,12 @@ and the next round has a new impostor. The host can switch on **18+ statements**
 6. The host can tap **End game** at any time to send everyone back to the lobby. From there they can pick a
    different category and start again, or tap **Close room** to shut the room and send everyone home.
 
+**Spectators:** switch on **Join as spectator** when joining to use a device (like a TV) as a shared screen.
+A spectator is never dealt in and only shows what everyone can already see: the join QR code in the lobby, the
+category in Categories, the countdown and the statement once it's revealed in the other modes, skips, and
+"Impostor won!". Spectators don't count towards the player minimum, and the room closes if only spectators are
+left.
+
 People who join mid-round are shown the word (never the impostor) and are dealt in from the next round.
 Refreshing the page or locking your phone doesn't lose your place. You rejoin automatically, and players are
 only removed after 10 minutes offline.

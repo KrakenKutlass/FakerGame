@@ -706,3 +706,67 @@ h2 {
     display: none;
   }
 }
+
+/* Spectator (shared screen / TV) */
+.app.tv {
+  max-width: 1100px;
+}
+.tv-card {
+  cursor: default;
+  min-height: 55vh;
+}
+.tv-card .statement {
+  font-size: clamp(1.8rem, 5vw, 4rem);
+}
+.tv-card .count-number {
+  font-size: clamp(6rem, 18vw, 12rem);
+}
+.tv-card .count-action,
+.tv-card .won-title,
+.tv-card .cover-title {
+  font-size: clamp(2.4rem, 7vw, 5rem);
+}
+.tv-card .muted,
+.tv-card .won-sub,
+.tv-card .skip-announce-sub {
+  font-size: clamp(1rem, 2.2vw, 1.6rem);
+}
+.tv-lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding-top: 12px;
+  text-align: center;
+}
+.tv-lobby p {
+  margin: 0;
+}
+.tv-join {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px 40px;
+}
+.tv-qr {
+  width: min(70vw, 50vh, 340px);
+}
+.tv-code {
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+}
+.tv-sub {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+/* The wide TV layout would run into the corner logo, so it sits bottom-centre there instead */
+.app.tv .site-logo {
+  position: static;
+  align-self: center;
+  margin-top: auto;
+  padding-top: 28px;
+  height: 36px;
+}

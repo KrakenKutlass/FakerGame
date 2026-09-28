@@ -79,7 +79,18 @@ function broadcast(room) {
 function dropPlayer(room, playerId) {
   cancelRemoval(room, playerId);
   game.removePlayer(room, playerId);
-  if (game.rooms.has(room.code)) broadcast(room);
+  if (room.closed) notifyClosed(room);
+  else broadcast(room);
+}
+
+/** Tell everyone still attached (e.g. a spectator TV) that the room is gone. */
+function notifyClosed(room) {
+  for (const id of room.players.keys()) {
+    const channel = `player:${room.code}:${id}`;
+    io.to(channel).emit('closed');
+    io.in(channel).socketsLeave(channel);
+    cancelRemoval(room, id);
+  }
 }
 
 io.on('connection', (socket) => {
@@ -138,13 +149,13 @@ io.on('connection', (socket) => {
     ack?.({ code: newRoom.code });
   });
 
-  socket.on('join', ({ playerId: id, name, code } = {}, ack) => {
+  socket.on('join', ({ playerId: id, name, code, spectator = false } = {}, ack) => {
     const target = game.getRoom(code);
     if (!target) return fail(ack, 'Room not found — check the code');
     if (!id) return fail(ack, 'Missing player id');
     const clean = cleanName(name);
     if (!target.players.has(String(id)) && !clean) return fail(ack, 'Enter your name first');
-    game.addPlayer(target, String(id), clean);
+    game.addPlayer(target, String(id), clean, { spectator: Boolean(spectator) });
     attach(target, String(id));
     ack?.({ code: target.code });
   });
@@ -191,12 +202,7 @@ io.on('connection', (socket) => {
     if (!current()) return fail(ack, 'Not in a room');
     if (room.hostId !== playerId) return fail(ack, 'Only the host can close the room');
     const closing = room;
-    for (const id of closing.players.keys()) {
-      const channel = `player:${closing.code}:${id}`;
-      io.to(channel).emit('closed');
-      io.in(channel).socketsLeave(channel);
-      cancelRemoval(closing, id);
-    }
+    notifyClosed(closing);
     game.closeRoom(closing);
     current();
     ack?.({ ok: true });

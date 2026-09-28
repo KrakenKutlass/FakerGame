@@ -156,7 +156,7 @@ export default function App() {
   };
 
   return (
-    <div className="app">
+    <div className={`app ${state?.spectator ? 'tv' : ''}`}>
       {!connected && <div className="banner">Connecting…</div>}
       <img className="site-logo" src="/gamenite-logo.png" alt="GameNite" draggable="false" />
       {state ? (
@@ -167,7 +167,7 @@ export default function App() {
           setName={saveName}
           disabled={!connected}
           onCreate={() => run('create', { playerId, name })}
-          onJoin={(code) => run('join', { playerId, name, code })}
+          onJoin={(code, spectator) => run('join', { playerId, name, code, spectator })}
         />
       )}
       {(error || info) && (
@@ -189,7 +189,16 @@ export default function App() {
 function Home({ name, setName, disabled, onCreate, onJoin }) {
   const [code, setCode] = useState(inviteCode);
   const [invited, setInvited] = useState(inviteCode.length === 4);
+  const [spectator, setSpectator] = useState(false);
   const hasName = name.trim().length > 0;
+  const spectatorSwitch = (
+    <Toggle
+      on={spectator}
+      onChange={setSpectator}
+      label="Join as spectator"
+      sub={spectator ? "For a shared screen: you'll only see what everyone can see" : "You'll play as normal"}
+    />
+  );
 
   if (invited) {
     return (
@@ -205,7 +214,7 @@ function Home({ name, setName, disabled, onCreate, onJoin }) {
           className="join"
           onSubmit={(e) => {
             e.preventDefault();
-            onJoin(code);
+            onJoin(code, spectator);
           }}
         >
           <label className="field">
@@ -219,6 +228,7 @@ function Home({ name, setName, disabled, onCreate, onJoin }) {
               autoFocus
             />
           </label>
+          {spectatorSwitch}
           <button type="submit" className="btn primary big" disabled={disabled || !hasName}>
             Join room
           </button>
@@ -253,7 +263,7 @@ function Home({ name, setName, disabled, onCreate, onJoin }) {
         className="join"
         onSubmit={(e) => {
           e.preventDefault();
-          onJoin(code);
+          onJoin(code, spectator);
         }}
       >
         <label className="field">
@@ -268,6 +278,7 @@ function Home({ name, setName, disabled, onCreate, onJoin }) {
             inputMode="text"
           />
         </label>
+        {spectatorSwitch}
         <button type="submit" className="btn primary" disabled={disabled || !hasName || code.length !== 4}>
           Join room
         </button>
@@ -329,7 +340,9 @@ function Room({ state, run, onLeave }) {
         </button>
       </header>
 
-      {round ? (
+      {state.spectator ? (
+        <SpectatorView state={state} announcingSkip={Boolean(skipSplash)} />
+      ) : round ? (
         <RoundView
           key={round.number}
           round={round}
@@ -350,7 +363,7 @@ function Room({ state, run, onLeave }) {
 }
 
 function Lobby({ state, isHost, run }) {
-  const count = state.players.length;
+  const count = state.players.filter((p) => !p.spectator).length;
   const enough = count >= state.minPlayers;
   const host = state.players.find((p) => p.id === state.hostId);
 
@@ -564,6 +577,100 @@ function ActCardFace({ round, run }) {
   );
 }
 
+/**
+ * The shared-screen view (e.g. a TV): only what everyone at the table can already see.
+ * The server never sends a spectator the word, the impostor, or an unrevealed statement.
+ */
+function SpectatorView({ state, announcingSkip }) {
+  const { round } = state;
+  const host = state.players.find((p) => p.id === state.hostId);
+  const url = inviteUrl(state.code);
+  const qr = useQrCode(url);
+
+  if (!round) {
+    return (
+      <section className="tv-lobby">
+        <div className="tv-join">
+          <div className="qr-image tv-qr">{qr && <img src={qr} alt={`QR code to join room ${state.code}`} />}</div>
+          <div>
+            <div className="label">Scan to join</div>
+            <div className="tv-code">{state.code}</div>
+            <div className="muted qr-url">{url}</div>
+          </div>
+        </div>
+        <p className="tv-sub">
+          {MODE_INFO[state.mode]?.name}
+          {state.mode === 'categories'
+            ? ` · ${state.category ?? 'Random'}`
+            : state.adult
+              ? ' · 18+'
+              : ''}
+        </p>
+        <p className="waiting center">Waiting for {host?.name ?? 'the host'} to start…</p>
+      </section>
+    );
+  }
+
+  const act = isActKind(round.kind);
+  const info = MODE_INFO[round.kind];
+  let body;
+  if (announcingSkip) {
+    body = (
+      <div className="card-cover skip-announce" role="status">
+        <div className="cover-title">{act ? 'Statement skipped' : 'Word skipped'}</div>
+        <div className="skip-announce-sub">the impostor is still at large...</div>
+      </div>
+    );
+  } else if (!act) {
+    body = (
+      <div className="card-cover">
+        <div className="role-tag">Category</div>
+        <div className="statement">{round.category}</div>
+        <div className="muted">Everyone's got the word, except one. Who's faking it?</div>
+      </div>
+    );
+  } else if (round.phase === 'reading') {
+    body = (
+      <div className="card-cover">
+        <div className="role-tag">{info.name}</div>
+        <div className="statement">Check your phones</div>
+        <div className="muted">Waiting for {host?.name ?? 'the host'} to tap Ready</div>
+      </div>
+    );
+  } else if (round.phase === 'acting') {
+    body = <Countdown action={info.action} />;
+  } else if (round.phase === 'revealed') {
+    body = (
+      <div className="card-cover">
+        <div className="role-tag">The statement was</div>
+        <div className="statement">{info.statement(round.prompt)}</div>
+        {info.note && <div className="muted">{info.note}</div>}
+      </div>
+    );
+  } else {
+    body = (
+      <div className="card-cover" role="status">
+        <div className="cover-icon" aria-hidden="true">🕵️</div>
+        <div className="won-title">Impostor won!</div>
+        <div className="won-sub">
+          <strong>{round.impostorName}</strong> survived {round.maxStreak} rounds without getting caught
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <section className="round">
+      <div className="card tv-card">{body}</div>
+      {round.skip.votes > 0 && (!act || round.phase === 'reading') && (
+        <p className="muted center">
+          Skip votes: {round.skip.votes}/{round.skip.needed}
+        </p>
+      )}
+    </section>
+  );
+}
+
 /** 3-2-1 on every phone after the host taps Ready, then the action to perform. */
 function Countdown({ action }) {
   const [n, setN] = useState(3);
@@ -612,22 +719,28 @@ function ModePicker({ state, run }) {
   );
 }
 
-function AdultToggle({ state, run }) {
+function Toggle({ on, onChange, label, sub }) {
   return (
-    <button
-      role="switch"
-      aria-checked={state.adult}
-      className={`toggle ${state.adult ? 'on' : ''}`}
-      onClick={() => run('setAdult', { adult: !state.adult })}
-    >
+    <button type="button" role="switch" aria-checked={on} className={`toggle ${on ? 'on' : ''}`} onClick={() => onChange(!on)}>
       <span className="toggle-label">
-        18+ statements
-        <span className="muted small-text">{state.adult ? 'Spicy ones included' : 'Clean only'}</span>
+        {label}
+        {sub && <span className="muted small-text">{sub}</span>}
       </span>
       <span className="toggle-track" aria-hidden="true">
         <span className="toggle-thumb" />
       </span>
     </button>
+  );
+}
+
+function AdultToggle({ state, run }) {
+  return (
+    <Toggle
+      on={state.adult}
+      onChange={(adult) => run('setAdult', { adult })}
+      label="18+ statements"
+      sub={state.adult ? 'Spicy ones included' : 'Clean only'}
+    />
   );
 }
 
@@ -686,7 +799,7 @@ function PlayerList({ state }) {
   return (
     <section className="players">
       <h2>
-        Players <span className="muted">({state.players.length})</span>
+        Players <span className="muted">({state.players.filter((p) => !p.spectator).length})</span>
       </h2>
       <ul>
         {state.players.map((p) => (
@@ -697,6 +810,7 @@ function PlayerList({ state }) {
             </span>
             <span className="tags">
               {p.id === state.hostId && <span className="tag host">Host</span>}
+              {p.spectator && <span className="tag">Spectator</span>}
               {p.waiting && <span className="tag">Next round</span>}
               {!p.connected && <span className="tag">Offline</span>}
             </span>
@@ -707,13 +821,17 @@ function PlayerList({ state }) {
   );
 }
 
-function QrModal({ code, onClose }) {
+function useQrCode(url) {
   const [src, setSrc] = useState('');
-  const url = inviteUrl(code);
-
   useEffect(() => {
     QRCode.toDataURL(url, { width: 720, margin: 2, errorCorrectionLevel: 'M' }).then(setSrc, () => setSrc(''));
   }, [url]);
+  return src;
+}
+
+function QrModal({ code, onClose }) {
+  const url = inviteUrl(code);
+  const src = useQrCode(url);
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();

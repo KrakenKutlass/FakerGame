@@ -85,30 +85,38 @@ export class Game {
     return this.rooms.get(String(code ?? '').trim().toUpperCase());
   }
 
-  addPlayer(room, playerId, name) {
+  /**
+   * Adds a player, or updates the name of one rejoining. Spectators (e.g. a TV) only ever see
+   * public information and are never dealt in, voted, or made host. Rejoining keeps the role.
+   */
+  addPlayer(room, playerId, name, { spectator = false } = {}) {
     const existing = room.players.get(playerId);
     if (existing) {
       if (name) existing.name = name;
       return existing;
     }
-    const player = { id: playerId, name, connected: true, joinedAt: Date.now() };
+    const player = { id: playerId, name, connected: true, joinedAt: Date.now(), spectator: Boolean(spectator) };
     room.players.set(playerId, player);
     return player;
   }
 
+  /** Everyone who actually plays (not spectators), longest-in-room first. */
+  activePlayers(room) {
+    return [...room.players.values()].filter((p) => !p.spectator).sort((a, b) => a.joinedAt - b.joinedAt);
+  }
+
   removePlayer(room, playerId) {
     room.players.delete(playerId);
-    if (room.players.size === 0) {
+    const active = this.activePlayers(room);
+    // Nobody left to play (maybe just a TV spectator): the room is done.
+    if (active.length === 0) {
       this.closeRoom(room);
       return;
     }
-    if (room.hostId === playerId) {
-      // Hand hosting to whoever has been in the room longest.
-      const next = [...room.players.values()].sort((a, b) => a.joinedAt - b.joinedAt)[0];
-      room.hostId = next.id;
-    }
+    // Hand hosting to whoever has been in the room longest.
+    if (room.hostId === playerId) room.hostId = active[0].id;
     // A round can't carry on without enough players, so send everyone back to the lobby.
-    if (room.round && room.players.size < MIN_PLAYERS) room.round = null;
+    if (room.round && active.length < MIN_PLAYERS) room.round = null;
     // Fewer voters can mean the votes already cast are now a majority.
     if (room.round) this.maybeSkip(room);
   }
@@ -180,7 +188,7 @@ export class Game {
    * the impostor's survival rounds this is in the act modes; it resets with a new impostor.
    */
   startRound(room, { impostorId = null, skipped = false, streak = 1 } = {}) {
-    const participants = [...room.players.keys()];
+    const participants = this.activePlayers(room).map((p) => p.id);
     if (participants.length < MIN_PLAYERS) {
       throw new Error(`Need at least ${MIN_PLAYERS} players to start`);
     }
@@ -241,7 +249,7 @@ export class Game {
         round.phase = 'impostorWon';
         return room.round;
       }
-      if (room.players.size < MIN_PLAYERS) return this.nextRound(room);
+      if (this.activePlayers(room).length < MIN_PLAYERS) return this.nextRound(room);
       return this.startRound(room, { impostorId: round.impostorId, streak: round.streak + 1 });
     }
     if (round.phase === 'impostorWon') return this.nextRound(room);
@@ -289,18 +297,51 @@ export class Game {
    * are no longer enough players for one. Returns the new round, or null for the lobby.
    */
   nextRound(room) {
-    if (room.round && room.players.size < MIN_PLAYERS) {
+    if (room.round && this.activePlayers(room).length < MIN_PLAYERS) {
       room.round = null;
       return null;
     }
     return this.startRound(room);
   }
 
+  /**
+   * What a spectator (the TV) sees: only what everyone at the table already knows. Never the
+   * word, never the impostor, and an act-mode statement only once it's been revealed to all.
+   */
+  publicRoundView(room) {
+    const { round } = room;
+    const view = {
+      number: round.number,
+      kind: round.kind,
+      role: 'spectator',
+      skipped: round.skipped,
+      skip: {
+        votes: this.skipVoters(room).filter((id) => round.skipVotes.has(id)).length,
+        needed: this.skipNeeded(room),
+        voted: false,
+        canVote: false,
+      },
+    };
+    if (!this.isActRound(round)) return { ...view, category: round.category };
+    const public_ = round.phase === 'revealed' || round.phase === 'impostorWon';
+    return {
+      ...view,
+      phase: round.phase,
+      streak: round.streak,
+      maxStreak: SURVIVAL_ROUNDS,
+      prompt: public_ ? round.prompt : undefined,
+      impostorName: round.phase === 'impostorWon' ? room.players.get(round.impostorId)?.name : undefined,
+    };
+  }
+
   /** The view of the room that one specific player is allowed to see. */
   viewFor(room, playerId) {
     const { round } = room;
+    const spectator = Boolean(room.players.get(playerId)?.spectator);
     let myRound = null;
-    if (round) {
+    if (round && spectator) {
+      myRound = this.publicRoundView(room);
+    } else if (round) {
       const inRound = round.participants.has(playerId);
       const base = {
         number: round.number,
@@ -344,13 +385,15 @@ export class Game {
       modes: MODES,
       mode: room.mode,
       adult: room.adult,
+      spectator,
       players: [...room.players.values()]
         .sort((a, b) => a.joinedAt - b.joinedAt)
         .map((p) => ({
           id: p.id,
           name: p.name,
           connected: p.connected,
-          waiting: Boolean(round && !round.participants.has(p.id)),
+          spectator: Boolean(p.spectator),
+          waiting: Boolean(round && !p.spectator && !round.participants.has(p.id)),
         })),
       round: myRound,
     };

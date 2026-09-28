@@ -327,3 +327,60 @@ test('bundled statement files have Clean and 18+ sections', () => {
     assert.ok(parsed.filter((e) => e.category === 'Clean').length >= 50, file);
   }
 });
+
+// --- Spectators ---
+
+test('spectators are never dealt in, never the impostor, and see no secrets in Categories', () => {
+  const { game, room } = roomWith(2);
+  game.addPlayer(room, 'tv', 'TV', { spectator: true });
+  for (let i = 0; i < 20; i++) {
+    const r = game.startRound(room);
+    assert.ok(!r.participants.has('tv'));
+    assert.notEqual(r.impostorId, 'tv');
+  }
+  const v = game.viewFor(room, 'tv');
+  assert.equal(v.spectator, true);
+  assert.equal(v.round.role, 'spectator');
+  assert.equal(v.round.word, undefined);
+  assert.ok(!JSON.stringify(v).includes(room.round.word));
+  assert.equal(v.round.category, room.round.category);
+  assert.equal(v.players.find((p) => p.id === 'tv').waiting, false);
+  assert.throws(() => game.voteSkip(room, 'tv'));
+});
+
+test('spectators do not count as players', () => {
+  const { game, room } = roomWith(1);
+  game.addPlayer(room, 'tv', 'TV', { spectator: true });
+  assert.throws(() => game.startRound(room));
+});
+
+test('spectator sees act-mode statements only once revealed to everyone', () => {
+  const { game, room } = actRoom(2);
+  game.addPlayer(room, 'tv', 'TV', { spectator: true });
+  const round = game.startRound(room);
+  assert.equal(game.viewFor(room, 'tv').round.prompt, undefined);
+  game.ready(room);
+  assert.equal(game.viewFor(room, 'tv').round.phase, 'acting');
+  assert.equal(game.viewFor(room, 'tv').round.prompt, undefined);
+  game.reveal(room, round);
+  assert.equal(game.viewFor(room, 'tv').round.prompt, round.prompt);
+  assert.ok(!JSON.stringify(game.viewFor(room, 'tv')).includes('impostorId'));
+});
+
+test('host never passes to a spectator; room closes when only spectators remain', () => {
+  const { game, room } = roomWith(2);
+  game.addPlayer(room, 'tv', 'TV', { spectator: true });
+  room.players.get('tv').joinedAt = 0; // in the room longest
+  game.removePlayer(room, 'p0');
+  assert.equal(room.hostId, 'p1');
+  game.removePlayer(room, 'p1');
+  assert.equal(room.closed, true);
+  assert.equal(game.getRoom(room.code), undefined);
+});
+
+test('rejoining keeps your spectator/player role', () => {
+  const { game, room } = roomWith(2);
+  game.addPlayer(room, 'tv', 'TV', { spectator: true });
+  game.addPlayer(room, 'tv', 'TV', { spectator: false });
+  assert.equal(room.players.get('tv').spectator, true);
+});
